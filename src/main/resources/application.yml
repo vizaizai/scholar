@@ -1,0 +1,31 @@
+server:
+  port: 8888
+spring:
+  elasticsearch:
+    rest:
+      uris: 127.0.0.1:9200
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/ds1?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false
+    username: root
+    password: 123456
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+#rocketmq:
+#
+#    name-server: 127.0.0.1:9876
+#    producer:
+#      group: mq-group-1
+
+easy-http:
+    base-endpoints:
+      app1: 127.0.0.1:8888
+
+mybatis-plus:
+  mapper-locations: classpath:sqlMapper/*.xml
+  type-aliases-package: com.github.vizaizai.scholar.infrastructure.persistence.dataobject
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      table-underline: true
