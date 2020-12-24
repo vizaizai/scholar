@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * @author liaochongwei
  * @date 2020/7/28 17:57
  */
-//@RestController
+@RestController
 @RequestMapping("/books")
 public class DemoController {
 
@@ -57,6 +57,11 @@ public class DemoController {
     public Result<Void> editBook(@RequestBody BookDo bookDo) {
         elasticsearchOperations.save(bookDo);
         return Result.ok();
+    }
+
+    @GetMapping("/{id}")
+    public Result<BookDo> getById(@PathVariable String id) {
+        return Result.ok(elasticsearchOperations.get(id,BookDo.class));
     }
 
     @DeleteMapping("/{id}")

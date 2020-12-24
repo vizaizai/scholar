@@ -1,5 +1,7 @@
 package com.github.vizaizai.scholar.web.facade;
 
+import com.alibaba.fastjson.JSON;
+import com.github.vizaizai.retry.util.Utils;
 import com.github.vizaizai.scholar.infrastructure.external.DemoRpc;
 import com.github.vizaizai.scholar.infrastructure.persistence.dataobject.BookDo;
 import com.github.vizaizai.scholar.web.dto.Result;
@@ -48,7 +50,11 @@ public class Demo1Controller {
     }
 
     @GetMapping("/bar")
-    public List<String> bar() {
+    public List<String> bar(String[] ids) {
+//        if (Utils.getRandom(5,1) > 1) {
+//            throw new RuntimeException();
+//        }
+        System.out.println(JSON.toJSONString(ids));
         return Arrays.asList("hello", "world");
     }
 }

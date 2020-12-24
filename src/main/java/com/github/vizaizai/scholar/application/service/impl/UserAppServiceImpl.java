@@ -1,11 +1,14 @@
 package com.github.vizaizai.scholar.application.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.github.vizaizai.retry.core.Retry;
+import com.github.vizaizai.retry.util.Utils;
 import com.github.vizaizai.scholar.application.service.UserAppService;
 import com.github.vizaizai.scholar.infrastructure.persistence.database.UserMapper;
 import com.github.vizaizai.scholar.infrastructure.persistence.dataobject.UserDo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author liaochongwei
@@ -17,12 +20,19 @@ public class UserAppServiceImpl implements UserAppService {
     @Autowired
     private UserMapper userMapper;
 
+    @Transactional
     @Override
     public void add(String name) {
 
         UserDo userDo = new UserDo();
         userDo.setName(name);
-        userMapper.insert(userDo);
+        Retry.inject(()-> {
+            if (Utils.getRandom(10,3) > 6) {
+                throw new RuntimeException("发生异常");
+            }
+            userMapper.insert(userDo);
+
+        }).execute();
     }
 
     @Override

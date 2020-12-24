@@ -87,9 +87,9 @@
 
         <!-- https://mvnrepository.com/artifact/com.github.firelcw/easy-http-boot-starter -->
         <dependency>
-            <groupId>com.github.firelcw</groupId>
+            <groupId>com.github.vizaizai</groupId>
             <artifactId>easy-http-boot-starter</artifactId>
-            <version>1.4.0</version>
+            <version>1.5.2</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.baomidou/mybatis-plus-boot-starter -->
@@ -118,7 +118,11 @@
         </dependency>
 
 
-
+        <dependency>
+            <groupId>com.github.vizaizai</groupId>
+            <artifactId>retry</artifactId>
+            <version>1.0.1</version>
+        </dependency>
 
 
     </dependencies>

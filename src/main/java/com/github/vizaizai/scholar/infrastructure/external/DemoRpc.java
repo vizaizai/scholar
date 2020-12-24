@@ -1,7 +1,7 @@
 package com.github.vizaizai.scholar.infrastructure.external;
 
-import com.github.firelcw.annotation.*;
-import com.github.firelcw.boot.annotation.EasyHttpClient;
+import com.github.vizaizai.annotation.*;
+import com.github.vizaizai.boot.annotation.EasyHttpClient;
 import com.github.vizaizai.scholar.infrastructure.persistence.dataobject.BookDo;
 import com.github.vizaizai.scholar.web.dto.Result;
 
