@@ -124,6 +124,14 @@
             <version>1.0.1</version>
         </dependency>
 
+        <!-- 字节码工具 -->
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>1.10.19</version>
+        </dependency>
+
+
 
     </dependencies>
 
