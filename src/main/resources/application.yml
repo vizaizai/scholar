@@ -1,6 +1,11 @@
 server:
   port: 8888
 spring:
+  servlet:
+    # 文件上传大小限制
+    multipart:
+      max-request-size: 256MB
+      max-file-size: 256MB
   elasticsearch:
     rest:
       uris: 127.0.0.1:9200
@@ -29,3 +34,5 @@ mybatis-plus:
   global-config:
     db-config:
       table-underline: true
+
+

@@ -1,13 +1,15 @@
 package com.github.vizaizai.scholar.web.facade;
 
 import com.alibaba.fastjson.JSON;
-import com.github.vizaizai.retry.util.Utils;
 import com.github.vizaizai.scholar.infrastructure.external.DemoRpc;
 import com.github.vizaizai.scholar.infrastructure.persistence.dataobject.BookDo;
 import com.github.vizaizai.scholar.web.dto.Result;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.List;
 
@@ -50,11 +52,26 @@ public class Demo1Controller {
     }
 
     @GetMapping("/bar")
-    public List<String> bar(String[] ids) {
+    public List<String> bar(String[] ids, @RequestHeader HttpHeaders headers) {
 //        if (Utils.getRandom(5,1) > 1) {
 //            throw new RuntimeException();
 //        }
+        System.out.println(JSON.toJSONString(headers));
         System.out.println(JSON.toJSONString(ids));
         return Arrays.asList("hello", "world");
     }
+
+    @PostMapping("foo")
+    public List<String> foo(@RequestBody String foo) {
+        System.out.println(foo);
+        return Arrays.asList("hello", "world");
+    }
+
+    @PostMapping("foo1")
+    public List<String> foo1(HttpServletRequest request,  @RequestParam("formData") String body) {
+        System.out.println(JSON.toJSONString(request.getParameterMap()));
+        System.out.println(body);
+        return Arrays.asList("hello", "world");
+    }
+
 }

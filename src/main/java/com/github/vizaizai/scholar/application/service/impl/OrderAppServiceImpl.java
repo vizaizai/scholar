@@ -1,5 +1,6 @@
 package com.github.vizaizai.scholar.application.service.impl;
 
+import com.baomidou.mybatisplus.core.override.MybatisMapperProxy;
 import com.github.vizaizai.scholar.application.service.OrderAppService;
 import com.github.vizaizai.scholar.infrastructure.persistence.database.OrderItemMapper;
 import com.github.vizaizai.scholar.infrastructure.persistence.database.OrderMapper;
@@ -24,6 +25,7 @@ public class OrderAppServiceImpl implements OrderAppService {
     @Autowired
     private OrderItemMapper orderItemMapper;
 
+
     @Transactional
     @Override
     public String create(String buyId, List<OrderItemDo> items) {
@@ -34,6 +36,7 @@ public class OrderAppServiceImpl implements OrderAppService {
 
         orderMapper.insert(orderDo);
 
+        //MybatisMapperProxy
         for (OrderItemDo item : items) {
             item.setOrderId(orderDo.getId());
             orderItemMapper.insert(item);
