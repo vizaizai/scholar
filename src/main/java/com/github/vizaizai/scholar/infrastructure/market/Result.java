@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class Result {
 
-    private List<ItemResult> results;
+    private List<CommodityPrice> results;
 
 
 }

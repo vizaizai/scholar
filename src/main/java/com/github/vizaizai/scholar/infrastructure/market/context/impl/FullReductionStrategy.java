@@ -2,7 +2,6 @@ package com.github.vizaizai.scholar.infrastructure.market.context.impl;
 
 import com.github.vizaizai.scholar.infrastructure.market.Commodity;
 import com.github.vizaizai.scholar.infrastructure.market.FullReduction;
-import com.github.vizaizai.scholar.infrastructure.market.ItemResult;
 import com.github.vizaizai.scholar.infrastructure.market.context.MarketStrategy;
 
 import java.util.List;
@@ -13,8 +12,7 @@ import java.util.List;
  */
 public class FullReductionStrategy implements MarketStrategy<FullReduction> {
     @Override
-    public List<ItemResult> doHandle(List<Commodity> commodities, FullReduction activity) {
+    public void doHandle(List<Commodity> commodities, FullReduction activity) {
         System.out.println("满减");
-        return null;
     }
 }

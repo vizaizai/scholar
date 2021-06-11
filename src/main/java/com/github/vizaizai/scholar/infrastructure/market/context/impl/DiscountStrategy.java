@@ -2,11 +2,12 @@ package com.github.vizaizai.scholar.infrastructure.market.context.impl;
 
 import com.github.vizaizai.scholar.infrastructure.market.Commodity;
 import com.github.vizaizai.scholar.infrastructure.market.Discount;
-import com.github.vizaizai.scholar.infrastructure.market.ItemResult;
-import com.github.vizaizai.scholar.infrastructure.market.Limit;
+import com.github.vizaizai.scholar.infrastructure.market.CommodityPrice;
+
 import com.github.vizaizai.scholar.infrastructure.market.context.MarketStrategy;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,15 +16,34 @@ import java.util.List;
  */
 public class DiscountStrategy implements MarketStrategy<Discount> {
     @Override
-    public List<ItemResult> doHandle(List<Commodity> commodities, Discount activity) {
+    public void doHandle(List<Commodity> commodities, Discount activity) {
         List<Commodity> activityCommodities = activity.getActivityCommodities(commodities);
 
-        for (Commodity activityCommodity : activityCommodities) {
-            BigDecimal price = activityCommodity.getPrice();
-            Limit limit = activity.getLimit(activityCommodity);
-        }
-        System.out.println(1);
+        for (Commodity commodity : activityCommodities) {
+            List<CommodityPrice> commodityPrices = new ArrayList<>();
+            BigDecimal price = commodity.getPrice();
+            Integer maxQuantity = activity.getMaxQuantity(commodity);
 
-        return null;
+            // 商品数量拆分
+            for (int i = 0; i < commodity.getQuantity(); i++) {
+                CommodityPrice commodityPrice = new CommodityPrice();
+                commodityPrice.setItemId(commodity.getId());
+                commodityPrice.setPrePrice(commodity.getCurrentAvgPrice());
+
+                // 可参与数量不限制或未达最大值，则享受则扣
+                if (maxQuantity == -1 || i < maxQuantity) {
+                    // 折扣价
+                    commodityPrice.setCurrentPrice(price.multiply(activity.getRatio()));
+                }else {
+                    // 原价
+                    commodityPrice.setCurrentPrice(price);
+                }
+
+                commodityPrices.add(commodityPrice);
+
+            }
+
+            commodity.addResults(commodityPrices,activity);
+        }
     }
 }

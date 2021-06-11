@@ -1,7 +1,7 @@
 package com.github.vizaizai.scholar.infrastructure.market;
 
 import com.alibaba.fastjson.JSON;
-import com.github.vizaizai.scholar.infrastructure.market.constants.LimitType;
+import com.github.vizaizai.scholar.infrastructure.market.constants.MutexType;
 import com.github.vizaizai.scholar.infrastructure.market.context.MarketContext;
 import com.github.vizaizai.scholar.infrastructure.market.context.impl.DiscountStrategy;
 
@@ -21,24 +21,24 @@ public class Demo1 {
          * 构造活动
          */
         List<Item> items = new ArrayList<>();
-        items.add(Item.createForPortion("123123", Limit.createNone()));
-        items.add(Item.createForPortion("111223", Limit.createNone()));
-        items.add(Item.createForPortion("111111", Limit.createNone()));
+        items.add(Item.createOne("123123",2));
+        items.add(Item.createOne("111223",1));
+        items.add(Item.createOne("111111",2));
 
         Discount discount = Discount.create(BigDecimal.valueOf(0.75));
-        discount.setMutex(Mutex.createNone());
+        discount.setId("dis-1");
+        discount.setMutexType(MutexType.NONE);
         discount.setItems(items);
 
 
         // 构造商品列表
         List<Commodity> commodities = new ArrayList<>();
-        commodities.add(new Commodity("111223",2, BigDecimal.valueOf(23.70)));
-        commodities.add(new Commodity("111111", 3, BigDecimal.valueOf(22.05)));
+        commodities.add(new Commodity("111223",3, BigDecimal.valueOf(23.70)));
+        commodities.add(new Commodity("111111", 4, BigDecimal.valueOf(22.05)));
 
-        List<ItemResult> itemResults = marketContext.doHandle(commodities,discount);
+        marketContext.doHandle(commodities,discount);
 
-        System.out.println(JSON.toJSONString(itemResults));
-
+        System.out.println(JSON.toJSONString(commodities));
 
     }
 }

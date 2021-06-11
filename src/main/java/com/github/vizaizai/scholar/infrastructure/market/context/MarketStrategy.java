@@ -2,7 +2,6 @@ package com.github.vizaizai.scholar.infrastructure.market.context;
 
 import com.github.vizaizai.scholar.infrastructure.market.Activity;
 import com.github.vizaizai.scholar.infrastructure.market.Commodity;
-import com.github.vizaizai.scholar.infrastructure.market.ItemResult;
 
 import java.util.List;
 
@@ -13,5 +12,5 @@ import java.util.List;
  */
 public interface MarketStrategy<T extends Activity> {
 
-    List<ItemResult> doHandle(List<Commodity> commodities, T activity);
+    void doHandle(List<Commodity> commodities, T activity);
 }

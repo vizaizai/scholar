@@ -17,23 +17,30 @@ public class Item {
      */
     private String id;
     /**
-     * 限制属性(折扣)
+     * 最大数量限制(针对折扣)
      */
-    private Limit limit;
+    private Integer maxQuantity;
 
-    public static Item create(ItemType type, String id, Limit limit) {
+
+    public static Item create(ItemType type, String id, Integer maxQuantity) {
         Item item = new Item();
         item.id = id;
-        item.limit = limit;
         item.type = type;
+        item.maxQuantity = maxQuantity;
         return item;
     }
-    public static Item createForPortion(String id, Limit limit) {
-        return create(ItemType.PORTION,id,limit);
+    public static Item createOne(String id, Integer maxQuantity) {
+        return create(ItemType.PORTION,id, maxQuantity);
+    }
+    public static Item createOne(String id) {
+        return create(ItemType.PORTION,id, -1);
     }
 
-    public static Item createForAll(Limit limit) {
-        return create(ItemType.ALL,null, limit);
+    public static Item createAll() {
+        return create(ItemType.ALL,null, -1);
+    }
+    public static Item createAll(Integer maxQuantity) {
+        return create(ItemType.ALL,null, maxQuantity);
     }
 
     public ItemType getType() {
@@ -44,7 +51,7 @@ public class Item {
         return id;
     }
 
-    public Limit getLimit() {
-        return limit;
+    public Integer getMaxQuantity() {
+        return maxQuantity;
     }
 }

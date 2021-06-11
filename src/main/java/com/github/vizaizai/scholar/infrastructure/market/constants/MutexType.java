@@ -7,6 +7,10 @@ package com.github.vizaizai.scholar.infrastructure.market.constants;
  */
 public enum MutexType {
     /**
+     * 禁用
+     */
+    DISABLED,
+    /**
      * 不互斥
      */
     NONE,

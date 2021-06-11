@@ -1,17 +1,17 @@
 package com.github.vizaizai.scholar.infrastructure.market.constants;
 
 /**
- * 互斥处理类型
+ * 营销组合方案
  * @author liaochongwei
  * @date 2021/6/9 16:00
  */
-public enum MutexResolveType {
+public enum MarketGroupType {
     /**
-     * 顺序优先
+     * 最优
      */
-    ORDER_PRIORITY,
+    BEST_GROUP,
     /**
-     * 价格优先
+     * 顺序
      */
-    PRICE_PRIORITY,
+    ORDER_GROUP,;
 }

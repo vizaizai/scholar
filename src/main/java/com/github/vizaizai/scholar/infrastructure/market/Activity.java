@@ -1,8 +1,9 @@
 package com.github.vizaizai.scholar.infrastructure.market;
 
 import com.github.vizaizai.scholar.infrastructure.market.constants.ItemType;
-import com.github.vizaizai.scholar.infrastructure.market.constants.LimitType;
+import com.github.vizaizai.scholar.infrastructure.market.constants.MutexType;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -16,9 +17,13 @@ import java.util.stream.Collectors;
  */
 public class Activity {
     /**
-     * 互斥属性
+     * 活动标识
      */
-    private Mutex mutex;
+    private String id;
+    /**
+     * 互斥类型
+     */
+    private MutexType mutexType;
     /**
      * 活动参与项列表
      */
@@ -32,12 +37,20 @@ public class Activity {
      */
     private ItemType itemType;
 
-    public Mutex getMutex() {
-        return mutex;
+    public String getId() {
+        return id;
     }
 
-    public void setMutex(Mutex mutex) {
-        this.mutex = mutex;
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public MutexType getMutexType() {
+        return mutexType;
+    }
+
+    public void setMutexType(MutexType mutexType) {
+        this.mutexType = mutexType;
     }
 
     public List<Item> getItems() {
@@ -64,11 +77,14 @@ public class Activity {
      * @return 活动商品列表
      */
     public List<Commodity> getActivityCommodities(List<Commodity> commodities) {
+        List<Commodity> commodityList = commodities
+                .stream().filter(e -> e.getQuantity() != 0 && e.getPrice().compareTo(BigDecimal.ZERO) > 0)
+                .collect(Collectors.toList());
         if (this.itemType.equals(ItemType.ALL)) {
-            return new ArrayList<>(commodities);
+            return commodityList;
         }
         List<Commodity> list = new ArrayList<>();
-        for (Commodity commodity : commodities) {
+        for (Commodity commodity : commodityList) {
             Item item = itemsMap.get(commodity.getId());
             if (item != null) {
                 list.add(commodity);
@@ -80,19 +96,19 @@ public class Activity {
     }
 
     /**
-     * 获取商品限制
+     * 获取商品可参与的最大数量
      * @param commodity commodity
      * @return Limit
      */
-    public Limit getLimit(Commodity commodity) {
+    public Integer getMaxQuantity(Commodity commodity) {
         if (this.itemType.equals(ItemType.ALL)) {
-            return this.items.get(0).getLimit();
+            return this.items.get(0).getMaxQuantity();
         }
         Item item = itemsMap.get(commodity.getId());
         if (item != null) {
-            return item.getLimit();
+            return item.getMaxQuantity();
         }
-        return Limit.create(LimitType.ORDER,0);
+        return 0;
     }
 
     public ItemType getItemType() {
