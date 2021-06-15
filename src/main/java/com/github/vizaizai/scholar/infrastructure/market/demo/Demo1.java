@@ -1,6 +1,9 @@
-package com.github.vizaizai.scholar.infrastructure.market;
+package com.github.vizaizai.scholar.infrastructure.market.demo;
 
 import com.alibaba.fastjson.JSON;
+import com.github.vizaizai.scholar.infrastructure.market.Commodity;
+import com.github.vizaizai.scholar.infrastructure.market.Discount;
+import com.github.vizaizai.scholar.infrastructure.market.Item;
 import com.github.vizaizai.scholar.infrastructure.market.constants.MutexType;
 import com.github.vizaizai.scholar.infrastructure.market.context.MarketContext;
 import com.github.vizaizai.scholar.infrastructure.market.context.impl.DiscountStrategy;
@@ -29,6 +32,7 @@ public class Demo1 {
         discount.setId("dis-1");
         discount.setMutexType(MutexType.NONE);
         discount.setItems(items);
+
 
 
         // 构造商品列表

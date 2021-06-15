@@ -17,6 +17,14 @@ public class FullReduction extends Activity{
      */
     private List<Level> levels;
 
+    public static FullReduction create() {
+        return new FullReduction();
+    }
+    public static FullReduction create(BigDecimal meet, BigDecimal reduce) {
+        FullReduction fullReduction = new FullReduction();
+        fullReduction.addLevel(meet, reduce);
+        return fullReduction;
+    }
     /**
      * 添加满减级别
      * @param meet 满
@@ -29,7 +37,7 @@ public class FullReduction extends Activity{
         this.levels.add(new Level(meet,reduce));
         // 满减排序
         if (this.levels.size() > 1) {
-            this.levels.sort(Comparator.comparing(Level::getMeet));
+            this.levels.sort(Comparator.comparing(Level::getMeet).reversed());
         }
 
     }
@@ -41,7 +49,7 @@ public class FullReduction extends Activity{
     /**
      * 满减级别
      */
-    static class Level {
+    public static class Level {
         /**
          * 满
          */

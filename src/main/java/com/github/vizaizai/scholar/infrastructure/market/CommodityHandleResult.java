@@ -22,8 +22,22 @@ public class CommodityHandleResult {
      */
     private BigDecimal subtotal;
 
+    public CommodityHandleResult(Activity activity, BigDecimal subtotal) {
+        this.activity = activity;
+        this.subtotal = subtotal;
+    }
+
+    public CommodityHandleResult(Activity activity, List<CommodityPrice> commodityPrices) {
+        this.activity = activity;
+        this.setCommodityPrices(commodityPrices);
+    }
+
     public Activity getActivity() {
         return activity;
+    }
+
+    public void setSubtotal(BigDecimal subtotal) {
+        this.subtotal = subtotal;
     }
 
     public void setActivity(Activity activity) {
@@ -37,7 +51,7 @@ public class CommodityHandleResult {
     public void setCommodityPrices(List<CommodityPrice> commodityPrices) {
         this.commodityPrices = commodityPrices;
         if (commodityPrices != null) {
-            this.subtotal = commodityPrices.stream().map(CommodityPrice::getCurrentPrice).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+            this.subtotal = commodityPrices.stream().map(CommodityPrice::getPrice).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
         }
     }
 

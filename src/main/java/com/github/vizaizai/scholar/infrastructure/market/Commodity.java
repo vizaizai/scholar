@@ -1,5 +1,7 @@
 package com.github.vizaizai.scholar.infrastructure.market;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -53,22 +55,26 @@ public class Commodity {
     public void setResults(List<CommodityHandleResult> results) {
         this.results = results;
     }
-    public void addResults(List<CommodityPrice> commodityPrices,Activity activity) {
+    public void addResult(List<CommodityPrice> commodityPrices, Activity activity) {
        if (this.results == null) {
            this.results = new ArrayList<>();
        }
-       CommodityHandleResult commodityHandleResult = new CommodityHandleResult();
-       commodityHandleResult.setActivity(activity);
-       commodityHandleResult.setCommodityPrices(commodityPrices);
-       this.results.add(commodityHandleResult);
+       this.results.add(new CommodityHandleResult(activity,commodityPrices));
+    }
+
+    public void addResult(BigDecimal subTotal, Activity activity) {
+        if (this.results == null) {
+            this.results = new ArrayList<>();
+        }
+        this.results.add(new CommodityHandleResult(activity,subTotal));
     }
 
     /**
-     * 获取当前小计
-     * @return 当前商品总价
+     * 获取小计
+     * @return 当前商品小计
      */
-    public BigDecimal getCurrentSubTotal() {
-        if (results != null && !results.isEmpty()) {
+    public BigDecimal getSubTotal() {
+        if (CollectionUtils.isNotEmpty(this.results)) {
             // 获取最后一个活动后的处理详情
             CommodityHandleResult handleResult = results.get(results.size() - 1);
             return handleResult.getSubtotal();
@@ -79,10 +85,30 @@ public class Commodity {
     }
 
     /**
-     * 获取当前均价
-     * @return 均价价
+     * 商品价格
+     * @return 商品价格
      */
-    public BigDecimal getCurrentAvgPrice() {
-        return this.getCurrentSubTotal().divide(BigDecimal.valueOf(this.quantity),4, RoundingMode.HALF_UP);
+    public BigDecimal getCommodityPrice() {
+        return this.getSubTotal().divide(BigDecimal.valueOf(this.quantity),4, RoundingMode.HALF_UP);
+    }
+
+    /**
+     * 获取单商品价格
+     * @param index 指定商品下标
+     * @return 单价
+     */
+    public BigDecimal getPrice(Integer index) {
+        if (CollectionUtils.isNotEmpty(this.results)) {
+            // 获取最后一个活动后的处理详情
+            CommodityHandleResult handleResult = results.get(results.size() - 1);
+            List<CommodityPrice> commodityPrices = handleResult.getCommodityPrices();
+            if (CollectionUtils.isNotEmpty(commodityPrices)) {
+                return commodityPrices.get(index).getPrice();
+            }
+            return handleResult.getSubtotal().divide(BigDecimal.valueOf(this.quantity),4,RoundingMode.HALF_UP);
+
+        }
+        // 单价
+        return this.price;
     }
 }

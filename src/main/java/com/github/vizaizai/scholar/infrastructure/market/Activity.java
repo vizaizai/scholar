@@ -36,6 +36,15 @@ public class Activity {
      * 参与项类型
      */
     private ItemType itemType;
+    /**
+     * 顺序
+     */
+    private Integer order;
+
+    public Activity() {
+        this.mutexType = MutexType.DISABLED;
+        this.setItems(Collections.singletonList(Item.createAll()));
+    }
 
     public String getId() {
         return id;
@@ -71,6 +80,10 @@ public class Activity {
 
     }
 
+    public void setOrder(Integer order) {
+        this.order = order;
+    }
+
     /**
      * 获取活动商品列表
      * @param commodities 原商品列表
@@ -96,7 +109,7 @@ public class Activity {
     }
 
     /**
-     * 获取商品可参与的最大数量
+     * 获取商品可参与的数量
      * @param commodity commodity
      * @return Limit
      */
@@ -115,4 +128,7 @@ public class Activity {
         return itemType;
     }
 
+    public Integer getOrder() {
+        return order;
+    }
 }

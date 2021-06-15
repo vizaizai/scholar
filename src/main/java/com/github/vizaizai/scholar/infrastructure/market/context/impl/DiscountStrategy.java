@@ -21,29 +21,28 @@ public class DiscountStrategy implements MarketStrategy<Discount> {
 
         for (Commodity commodity : activityCommodities) {
             List<CommodityPrice> commodityPrices = new ArrayList<>();
-            BigDecimal price = commodity.getPrice();
+            // 可参与数量
             Integer maxQuantity = activity.getMaxQuantity(commodity);
-
             // 商品数量拆分
             for (int i = 0; i < commodity.getQuantity(); i++) {
+                BigDecimal price = commodity.getPrice(i);
                 CommodityPrice commodityPrice = new CommodityPrice();
                 commodityPrice.setItemId(commodity.getId());
-                commodityPrice.setPrePrice(commodity.getCurrentAvgPrice());
-
+                commodityPrice.setPrePrice(price);
                 // 可参与数量不限制或未达最大值，则享受则扣
                 if (maxQuantity == -1 || i < maxQuantity) {
                     // 折扣价
-                    commodityPrice.setCurrentPrice(price.multiply(activity.getRatio()));
+                    commodityPrice.setPrice(price.multiply(activity.getRatio()));
                 }else {
                     // 原价
-                    commodityPrice.setCurrentPrice(price);
+                    commodityPrice.setPrice(price);
                 }
 
                 commodityPrices.add(commodityPrice);
 
             }
 
-            commodity.addResults(commodityPrices,activity);
+            commodity.addResult(commodityPrices,activity);
         }
     }
 }

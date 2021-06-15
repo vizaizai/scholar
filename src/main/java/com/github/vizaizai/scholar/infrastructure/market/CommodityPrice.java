@@ -19,7 +19,7 @@ public class CommodityPrice {
     /**
      * 当前价格
      */
-    private BigDecimal currentPrice;
+    private BigDecimal price;
     /**
      * 活动
      */
@@ -42,12 +42,12 @@ public class CommodityPrice {
         this.prePrice = prePrice;
     }
 
-    public BigDecimal getCurrentPrice() {
-        return currentPrice;
+    public BigDecimal getPrice() {
+        return price;
     }
 
-    public void setCurrentPrice(BigDecimal currentPrice) {
-        this.currentPrice = currentPrice;
+    public void setPrice(BigDecimal price) {
+        this.price = price;
     }
 
     public Activity getActivity() {

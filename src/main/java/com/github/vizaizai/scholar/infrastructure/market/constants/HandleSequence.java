@@ -1,17 +1,18 @@
 package com.github.vizaizai.scholar.infrastructure.market.constants;
 
 /**
- * 营销组合方案
+ * 活动执行
  * @author liaochongwei
  * @date 2021/6/9 16:00
  */
-public enum MarketGroupType {
+public enum HandleSequence {
+
     /**
      * 最优
      */
-    BEST_GROUP,
+    BEST,
     /**
-     * 顺序
+     * 默认顺序
      */
-    ORDER_GROUP,;
+    DEFAULT,;
 }
