@@ -20,10 +20,6 @@ public class CommodityPrice {
      * 当前价格
      */
     private BigDecimal price;
-    /**
-     * 活动
-     */
-    private Activity activity;
 
 
     public String getItemId() {
@@ -50,11 +46,4 @@ public class CommodityPrice {
         this.price = price;
     }
 
-    public Activity getActivity() {
-        return activity;
-    }
-
-    public void setActivity(Activity activity) {
-        this.activity = activity;
-    }
 }

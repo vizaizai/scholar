@@ -1,8 +1,10 @@
 package com.github.vizaizai.scholar.infrastructure.market;
 
-import com.github.vizaizai.scholar.infrastructure.market.constants.MultiDiscountHandleMethod;
+import com.alibaba.fastjson.annotation.JSONField;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * 折扣参数
@@ -11,32 +13,65 @@ import java.math.BigDecimal;
  */
 public class Discount extends Activity{
     /**
-     * 折扣比例
+     * 折扣，如7折，8折
      */
-    private final BigDecimal ratio;
+    @JSONField(serialize= false)
+    private BigDecimal value;
     /**
-     * 多折扣处理方法
+     * 折扣组，同组择优选择
      */
-    private MultiDiscountHandleMethod multiDiscountHandleMethod;
+    @JSONField(serialize= false)
+    private List<Discount> group;
 
-    private Discount(BigDecimal ratio) {
-        this.ratio = ratio;
-        this.multiDiscountHandleMethod = MultiDiscountHandleMethod.PRICE;
+
+    private Discount() {
     }
 
-    public static Discount create(BigDecimal ratio) {
-        return new Discount(ratio);
+    public static Discount create(BigDecimal value) {
+        if (value == null) {
+            throw new IllegalArgumentException("折扣值不能为空");
+        }
+        if (value.compareTo(BigDecimal.ZERO) <= 0 || value.compareTo(BigDecimal.TEN) == 0) {
+            throw new IllegalArgumentException("折扣值区间(0,10]");
+        }
+        Discount discount = new Discount();
+        discount.value = value;
+        return discount;
     }
 
-    public void setMultiDiscountHandleMethod(MultiDiscountHandleMethod multiDiscountHandleMethod) {
-        this.multiDiscountHandleMethod = multiDiscountHandleMethod;
+    public static Discount create(List<Discount> group) {
+        if (group == null) {
+            throw new IllegalArgumentException("折扣选项不能为空");
+        }
+        Discount discount = new Discount();
+        discount.group = group;
+        return discount;
     }
 
-    public BigDecimal getRatio() {
-        return ratio;
+    public BigDecimal getValue() {
+        return value;
     }
 
-    public MultiDiscountHandleMethod getMultiDiscountHandleMethod() {
-        return multiDiscountHandleMethod;
+    public List<Discount> getGroup() {
+        return group;
+    }
+
+    /**
+     * 获取最低折扣活动
+     * @param commodity commodity
+     * @return Discount
+     */
+    public Discount getLowestDiscount(Commodity commodity) {
+        if (this.value != null && this.isActivityCommodity(commodity)) {
+            return this;
+        }
+        // 从折扣组中选择
+        if (this.group != null) {
+            // 返回最小折扣
+            return this.group.stream()
+                        .filter(e->e.isActivityCommodity(commodity))
+                        .min(Comparator.comparing(e->e.value)).orElse(null);
+        }
+        return null;
     }
 }

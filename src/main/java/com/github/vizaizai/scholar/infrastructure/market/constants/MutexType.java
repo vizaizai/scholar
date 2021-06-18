@@ -9,17 +9,45 @@ public enum MutexType {
     /**
      * 禁用
      */
-    DISABLED,
+    DISABLED(){
+        @Override
+        public boolean shareTo(MutexType type) {
+            return true;
+        }
+    },
+
     /**
      * 不互斥
      */
-    NONE,
+    NONE() {
+        @Override
+        public boolean shareTo(MutexType type) {
+            return !type.equals(ALL);
+        }
+    },
     /**
      * 全部互斥
      */
-    ALL,
+    ALL() {
+        @Override
+        public boolean shareTo(MutexType type) {
+            return type.equals(DISABLED);
+        }
+    },
     /**
      * 与互斥活动互斥
      */
-    WITH_MUTEX;
+    WITH_MUTEX() {
+        @Override
+        public boolean shareTo(MutexType type) {
+            return !type.equals(WITH_MUTEX) && !type.equals(ALL);
+        }
+    };
+
+    /**
+     * 两者是否可以同享
+     * @param type
+     * @return boolean
+     */
+    public abstract boolean shareTo(MutexType type);
 }

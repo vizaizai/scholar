@@ -1,12 +1,12 @@
 package com.github.vizaizai.scholar.infrastructure.market.context.impl;
 
 import com.github.vizaizai.scholar.infrastructure.market.Commodity;
-import com.github.vizaizai.scholar.infrastructure.market.Discount;
 import com.github.vizaizai.scholar.infrastructure.market.CommodityPrice;
-
+import com.github.vizaizai.scholar.infrastructure.market.Discount;
 import com.github.vizaizai.scholar.infrastructure.market.context.MarketStrategy;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,12 +17,17 @@ import java.util.List;
 public class DiscountStrategy implements MarketStrategy<Discount> {
     @Override
     public void doHandle(List<Commodity> commodities, Discount activity) {
-        List<Commodity> activityCommodities = activity.getActivityCommodities(commodities);
 
-        for (Commodity commodity : activityCommodities) {
+        for (Commodity commodity : commodities) {
+            // 获取最低折扣
+            Discount discountActivity = activity.getLowestDiscount(commodity);
+            // 没有参与折扣活动
+            if (discountActivity == null) {
+                continue;
+            }
             List<CommodityPrice> commodityPrices = new ArrayList<>();
             // 可参与数量
-            Integer maxQuantity = activity.getMaxQuantity(commodity);
+            Integer maxQuantity = discountActivity.getMaxQuantity(commodity);
             // 商品数量拆分
             for (int i = 0; i < commodity.getQuantity(); i++) {
                 BigDecimal price = commodity.getPrice(i);
@@ -32,7 +37,7 @@ public class DiscountStrategy implements MarketStrategy<Discount> {
                 // 可参与数量不限制或未达最大值，则享受则扣
                 if (maxQuantity == -1 || i < maxQuantity) {
                     // 折扣价
-                    commodityPrice.setPrice(price.multiply(activity.getRatio()));
+                    commodityPrice.setPrice(price.multiply(discountActivity.getValue().divide(BigDecimal.valueOf(10),4, RoundingMode.HALF_UP)));
                 }else {
                     // 原价
                     commodityPrice.setPrice(price);
@@ -41,8 +46,8 @@ public class DiscountStrategy implements MarketStrategy<Discount> {
                 commodityPrices.add(commodityPrice);
 
             }
-
-            commodity.addResult(commodityPrices,activity);
+            // 添加计算结果
+            commodity.addResult(commodityPrices, activity);
         }
     }
 }

@@ -1,13 +1,10 @@
 package com.github.vizaizai.scholar.infrastructure.market;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.github.vizaizai.scholar.infrastructure.market.constants.ItemType;
 import com.github.vizaizai.scholar.infrastructure.market.constants.MutexType;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -15,7 +12,7 @@ import java.util.stream.Collectors;
  * @author liaochongwei
  * @date 2021/6/9 17:15
  */
-public class Activity {
+public class Activity implements Comparable<Activity>{
     /**
      * 活动标识
      */
@@ -23,23 +20,29 @@ public class Activity {
     /**
      * 互斥类型
      */
+    @JSONField(serialize= false)
     private MutexType mutexType;
     /**
      * 活动参与项列表
      */
+    @JSONField(serialize= false)
     private List<Item> items;
     /**
      * 活动参与项映射
      */
+    @JSONField(serialize= false)
     private Map<String, Item> itemsMap = Collections.emptyMap();
     /**
      * 参与项类型
      */
+    @JSONField(serialize= false)
     private ItemType itemType;
     /**
      * 顺序
      */
+    @JSONField(serialize= false)
     private Integer order;
+
 
     public Activity() {
         this.mutexType = MutexType.DISABLED;
@@ -91,7 +94,7 @@ public class Activity {
      */
     public List<Commodity> getActivityCommodities(List<Commodity> commodities) {
         List<Commodity> commodityList = commodities
-                .stream().filter(e -> e.getQuantity() != 0 && e.getPrice().compareTo(BigDecimal.ZERO) > 0)
+                .stream().filter(Commodity::isGtZero)
                 .collect(Collectors.toList());
         if (this.itemType.equals(ItemType.ALL)) {
             return commodityList;
@@ -104,8 +107,21 @@ public class Activity {
             }
         }
         return list;
+    }
 
-
+    /**
+     * 判断该商品是否可参与该活动
+     * @param commodity
+     * @return true or false
+     */
+    public boolean isActivityCommodity(Commodity commodity) {
+       if (!commodity.isGtZero()) {
+           return false;
+       }
+        if (this.itemType.equals(ItemType.ALL)) {
+            return true;
+        }
+        return itemsMap.containsKey(commodity.getId());
     }
 
     /**
@@ -131,4 +147,41 @@ public class Activity {
     public Integer getOrder() {
         return order;
     }
+
+
+    @Override
+    public int compareTo(Activity o) {
+        return this.order - o.order;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        Activity activity = (Activity) object;
+        return Objects.equals(id, activity.id) &&
+                mutexType == activity.mutexType &&
+                Objects.equals(items, activity.items) &&
+                Objects.equals(itemsMap, activity.itemsMap) &&
+                itemType == activity.itemType &&
+                Objects.equals(order, activity.order);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, mutexType, items, itemsMap, itemType, order);
+    }
+
+    /**
+     * 两两是否能同享
+     */
+    public boolean shareTo(Set<Activity> activities) {
+        Activity activity = activities.stream()
+                .filter(e -> !e.mutexType.shareTo(this.mutexType))
+                .findAny()
+                .orElse(null);
+        // 当存在一个不能同享的，则返回false
+        return activity == null;
+    }
+
 }

@@ -36,6 +36,7 @@ public class Commodity {
         this.price = price;
     }
 
+
     public String getId() {
         return id;
     }
@@ -51,6 +52,7 @@ public class Commodity {
     public List<CommodityHandleResult> getResults() {
         return results;
     }
+
 
     public void setResults(List<CommodityHandleResult> results) {
         this.results = results;
@@ -68,6 +70,13 @@ public class Commodity {
         }
         this.results.add(new CommodityHandleResult(activity,subTotal));
     }
+
+    public void clearResults() {
+        if (CollectionUtils.isNotEmpty(this.results)) {
+            this.results.clear();
+        }
+    }
+
 
     /**
      * 获取小计
@@ -111,4 +120,13 @@ public class Commodity {
         // 单价
         return this.price;
     }
+
+    /**
+     * 判断数量和单价大于0
+     * @return
+     */
+    public boolean isGtZero() {
+        return this.getQuantity() > 0 && this.getPrice().compareTo(BigDecimal.ZERO) > 0;
+    }
+
 }
