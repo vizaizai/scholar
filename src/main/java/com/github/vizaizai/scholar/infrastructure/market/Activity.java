@@ -184,4 +184,15 @@ public class Activity implements Comparable<Activity>{
         return activity == null;
     }
 
+    /**
+     * 获取互斥列表
+     * @param activities
+     * @return 互斥活动
+     */
+    public Set<Activity> getMutexActivities(Set<Activity> activities) {
+        return activities.stream()
+                .filter(e -> !e.mutexType.shareTo(this.mutexType))
+                .collect(Collectors.toSet());
+    }
+
 }

@@ -1,16 +1,10 @@
 package com.github.vizaizai.scholar.infrastructure.market;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializeConfig;
-import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.github.vizaizai.scholar.infrastructure.market.constants.MutexType;
 import com.github.vizaizai.scholar.infrastructure.market.context.MarketContext;
 import com.github.vizaizai.scholar.infrastructure.market.context.impl.DiscountStrategy;
 import com.github.vizaizai.scholar.infrastructure.market.context.impl.FullReductionStrategy;
-import org.apache.commons.collections.CollectionUtils;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,30 +29,13 @@ public class Market {
 
     public Market(List<Activity> activities) {
         this.activities = activities;
-        this.initGroups();
     }
 
     /**
-     * 这只商品活动列表
-     * @param commodities
-     */
-    private void setCommodityActivities(List<Commodity> commodities) {
-        for (Commodity commodity : commodities) {
-            List<Activity> commodityActivities = new ArrayList<>();
-            for (Activity activity : activities) {
-                if (activity.isActivityCommodity(commodity)) {
-                    commodityActivities.add(activity);
-                }
-            }
-        }
-    }
-
-    /**
-     * 先假设所有商品参加所有活动
      * 初始化活动组
      */
-    private void initGroups() {
-        if (CollectionUtils.isEmpty(activities)) {
+    private void initActivityGroup(List<Commodity> commodities) {
+        if (Utils.isEmpty(activities)) {
             return;
         }
         // 设置执行顺序
@@ -68,146 +45,72 @@ public class Market {
                 activity.setOrder(i);
             }
         }
-        List<Set<Activity>> activityGroups1 = new ArrayList<>();
+        this.commodities = commodities;
 
         for (Activity activity1 : activities) {
-            Set<Activity> groupItem = new TreeSet<>();
-            groupItem.add(activity1);
+            // 活动组成员
+            Set<Activity> activityGroup = new TreeSet<>();
+            activityGroup.add(activity1);
             for (Activity activity2 : activities) {
                 // 同一个活动则跳过
                 if (activity1.equals(activity2)) {
                     continue;
                 }
-                // 此活动和前面的所有活动都同享
-                if (activity2.shareTo(groupItem)) {
-                    groupItem.add(activity2);
+                // 当前活动和前面的所有活动都同享
+                if (activity2.shareTo(activityGroup)) {
+                    activityGroup.add(activity2);
                 }else {
-                    // 此活动与前面活动互斥的，如果商品列表都没有交集，则也可以同享
+                    // 当前活动与前面活动互斥的，如果商品列表都没有交集，则也可以同享
+                    // 与当前活动互斥的活动
+                    Set<Activity> mutexActivities = activity2.getMutexActivities(activityGroup);
+                    // 当前活动商品集合
+                    Set<Commodity> activity2CommoditySet = new HashSet<>(activity2.getActivityCommodities(commodities));
+                    if (Utils.isNotEmpty(activity2CommoditySet)) {
+                        // 默认不存在交集
+                        boolean intersect = false;
+                        for (Activity mutexActivity : mutexActivities) {
+                            Set<Commodity> mutexActivityCommoditySet =  new HashSet<>(mutexActivity.getActivityCommodities(commodities));
+                            mutexActivityCommoditySet.retainAll(activity2CommoditySet);
+                            // 存在交集
+                            if (Utils.isNotEmpty(mutexActivityCommoditySet)) {
+                                intersect = true;
+                                break;
+                            }
+                        }
+                        // 不存在交集，则可以同享
+                        if (!intersect) {
+                            activityGroup.add(activity2);
+                        }
+                    }
+
                 }
             }
-            // 判断重复的活动组
-
-            activityGroups1.add(groupItem);
-        }
-
-        System.out.println(JSON.toJSONString(activityGroups1, SerializerFeature.DisableCircularReferenceDetect));
-
-        // 筛选禁用互斥属性的活动
-        List<Activity> disActivities = new ArrayList<>();
-        for (Activity activity : activities) {
-            if (activity.getMutexType().equals(MutexType.DISABLED)) {
-                disActivities.add(activity);
-            }
-        }
-        // 筛选同享活动
-        List<Activity> shareActivities = new ArrayList<>();
-        for (Activity activity : activities) {
-            if (activity.getMutexType().equals(MutexType.NONE)) {
-                shareActivities.add(activity);
-            }
-        }
-
-        // 筛选全部互斥
-        List<Activity> allMutexActivities = new ArrayList<>();
-        for (Activity activity : activities) {
-            if (activity.getMutexType().equals(MutexType.ALL)) {
-                allMutexActivities.add(activity);
-            }
-        }
-
-        // 筛选与互斥活动互斥
-        List<Activity> withMutexActivities = new ArrayList<>();
-        for (Activity activity : activities) {
-            if (activity.getMutexType().equals(MutexType.WITH_MUTEX)) {
-                withMutexActivities.add(activity);
-            }
-        }
-
-
-        /*==================================================开始组合========================================*/
-        // 同享(0-空) 与互斥活动互斥(0-空) 全互斥(0-空)
-        // 0 0 0
-        if (shareActivities.isEmpty() && withMutexActivities.isEmpty() && allMutexActivities.isEmpty()) {
-            this.addGroup(new TreeSet<>(disActivities));
-        }
-        // 0 0 1
-        if (shareActivities.isEmpty() && withMutexActivities.isEmpty() && !allMutexActivities.isEmpty()) {
-            Set<Activity> group = new TreeSet<>(disActivities);
-            group.addAll(allMutexActivities);
-            this.addGroup(group);
-        }
-        // 0 1 0
-        if (shareActivities.isEmpty() && !withMutexActivities.isEmpty() && allMutexActivities.isEmpty()) {
-            for (Activity activity : withMutexActivities) {
-                Set<Activity> group = new TreeSet<>(disActivities);
-                group.add(activity);
-                this.addGroup(group);
-            }
-        }
-        // 0 1 1
-        if (shareActivities.isEmpty() && !withMutexActivities.isEmpty() && !allMutexActivities.isEmpty()) {
-            for (Activity activity : withMutexActivities) {
-                Set<Activity> group = new TreeSet<>(disActivities);
-                group.add(activity);
-                this.addGroup(group);
-            }
-            for (Activity activity : allMutexActivities) {
-                Set<Activity> group = new TreeSet<>(disActivities);
-                group.add(activity);
-                this.addGroup(group);
-            }
-        }
-        // 1 0 0
-        if (!shareActivities.isEmpty() && withMutexActivities.isEmpty() && allMutexActivities.isEmpty()) {
-            Set<Activity> group = new TreeSet<>(disActivities);
-            group.addAll(shareActivities);
-            this.addGroup(group);
-        }
-        // 1 0 1
-        if (!shareActivities.isEmpty() && withMutexActivities.isEmpty() && !allMutexActivities.isEmpty()) {
-            Set<Activity> group1 = new TreeSet<>(disActivities);
-            group1.addAll(allMutexActivities);
-            this.addGroup(group1);
-
-            for (Activity activity : allMutexActivities) {
-                Set<Activity> group2 = new TreeSet<>(disActivities);
-                group2.add(activity);
-                this.addGroup(group2);
-            }
-        }
-        // 1 1 0
-        if (!shareActivities.isEmpty() && !withMutexActivities.isEmpty() && allMutexActivities.isEmpty()) {
-            for (Activity activity : withMutexActivities) {
-                Set<Activity> group = new TreeSet<>(disActivities);
-                group.addAll(shareActivities);
-                group.add(activity);
-                this.addGroup(group);
-            }
-        }
-        // 1 1 1
-        if (!shareActivities.isEmpty() && !withMutexActivities.isEmpty() && !allMutexActivities.isEmpty()) {
-            for (Activity activity : withMutexActivities) {
-                Set<Activity> group = new TreeSet<>(disActivities);
-                group.addAll(shareActivities);
-                group.add(activity);
-                this.addGroup(group);
-            }
-            for (Activity activity : allMutexActivities) {
-                Set<Activity> group = new TreeSet<>(disActivities);
-                group.add(activity);
-                this.addGroup(group);
-            }
+            // 添加到活动组列表中
+            this.addGroup(activityGroup);
 
         }
-
-
     }
 
+
     private void addGroup(Set<Activity> group) {
-        if (CollectionUtils.isEmpty(group)) {
+        if (Utils.isEmpty(group)) {
             return;
         }
-        this.activityGroups.add(group);
+        Set<Activity> groupTemp = new TreeSet<>(group);
+        // 默认不重复
+        boolean repeat = false;
+        // 判断重复的活动组
+        for (Set<Activity> activityGroup : activityGroups) {
+            groupTemp.addAll(activityGroup);
+            // 如何取并集后的元素数量等于并集前的元素数量，则两个集合完全相同
+            if (group.size() == groupTemp.size()) {
+                repeat = true;
+            }
+        }
+        if (!repeat) {
+            this.activityGroups.add(group);
+        }
+
     }
 
 
@@ -217,23 +120,17 @@ public class Market {
      */
     @SuppressWarnings(value = "all")
     public BigDecimal doMarketing(List<Commodity> commodities) {
-        if (CollectionUtils.isEmpty(commodities)) {
+        long s = System.currentTimeMillis();
+        if (Utils.isEmpty(commodities)) {
             return BigDecimal.ZERO;
         }
-
-        this.commodities = commodities;
+        this.initActivityGroup(commodities);
         List<Commodity> handleCommodities = commodities.stream()
                 .map(e -> new Commodity(e.getId(), e.getQuantity(), e.getPrice()))
                 .collect(Collectors.toList());
 
         BigDecimal marketPrice = null;
         for (Set<Activity> activityGroup : activityGroups) {
-
-            // 结合实际商品列表添加营销活动
-//            for (Activity activity : activities) {
-//
-//            }
-
             // 顺序执行活动
             for (Activity activity : activityGroup) {
                this.getMarketContext(activity).doHandle(handleCommodities,activity);
@@ -249,7 +146,11 @@ public class Market {
                 for (int i = 0; i < handleCommodities.size(); i++) {
                     Commodity commodity1 = handleCommodities.get(i);
                     Commodity commodity2 = this.commodities.get(i);
-                    commodity2.setResults(new ArrayList<>(commodity1.getResults()));
+                    List<CommodityHandleResult> results = commodity1.getResults();
+                    if (Utils.isNotEmpty(results)) {
+                        commodity2.setResults(new ArrayList<>(results));
+                    }
+
                 }
             }
             this.clearResults(handleCommodities);
@@ -261,24 +162,10 @@ public class Market {
                 marketPrice = marketPrice.add(commodity.getSubTotal());
             }
         }
+        System.out.println("计算耗时：" + (System.currentTimeMillis() - s) +"ms");
         return marketPrice;
     }
 
-    private void resetActivityGroup(List<Commodity> commodities) {
-
-        Set<Activity> activitySet = new HashSet<>(activities);
-        for (Set<Activity> activityGroup : activityGroups) {
-            // 差集（未在活动组中）
-            activitySet.removeAll(activityGroup);
-
-            for (Activity activity : activitySet) {
-                List<Commodity> activityCommodities = activity.getActivityCommodities(commodities);
-                for (Commodity commodity : commodities) {
-
-                }
-            }
-        }
-    }
     public List<Activity> getActivities() {
         return activities;
     }

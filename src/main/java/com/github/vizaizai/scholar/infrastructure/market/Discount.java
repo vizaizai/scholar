@@ -3,8 +3,7 @@ package com.github.vizaizai.scholar.infrastructure.market;
 import com.alibaba.fastjson.annotation.JSONField;
 
 import java.math.BigDecimal;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 /**
  * 折扣参数
@@ -73,5 +72,18 @@ public class Discount extends Activity{
                         .min(Comparator.comparing(e->e.value)).orElse(null);
         }
         return null;
+    }
+
+    @Override
+    public List<Commodity> getActivityCommodities(List<Commodity> commodities) {
+        if (this.value != null) {
+            return super.getActivityCommodities(commodities);
+        }
+        Set<Commodity> commodityAllSet = new HashSet<>();
+        // 返回折扣组的商品列表
+        for (Discount discount : group) {
+            commodityAllSet.addAll(new HashSet<>(discount.getActivityCommodities(commodities)));
+        }
+        return new ArrayList<>(commodityAllSet);
     }
 }

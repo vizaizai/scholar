@@ -1,6 +1,6 @@
 package com.github.vizaizai.scholar.infrastructure.market;
 
-import org.apache.commons.collections.CollectionUtils;
+
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -72,7 +72,7 @@ public class Commodity {
     }
 
     public void clearResults() {
-        if (CollectionUtils.isNotEmpty(this.results)) {
+        if (Utils.isNotEmpty(this.results)) {
             this.results.clear();
         }
     }
@@ -83,7 +83,7 @@ public class Commodity {
      * @return 当前商品小计
      */
     public BigDecimal getSubTotal() {
-        if (CollectionUtils.isNotEmpty(this.results)) {
+        if (Utils.isNotEmpty(this.results)) {
             // 获取最后一个活动后的处理详情
             CommodityHandleResult handleResult = results.get(results.size() - 1);
             return handleResult.getSubtotal();
@@ -107,11 +107,11 @@ public class Commodity {
      * @return 单价
      */
     public BigDecimal getPrice(Integer index) {
-        if (CollectionUtils.isNotEmpty(this.results)) {
+        if (Utils.isNotEmpty(this.results)) {
             // 获取最后一个活动后的处理详情
             CommodityHandleResult handleResult = results.get(results.size() - 1);
             List<CommodityPrice> commodityPrices = handleResult.getCommodityPrices();
-            if (CollectionUtils.isNotEmpty(commodityPrices)) {
+            if (Utils.isNotEmpty(commodityPrices)) {
                 return commodityPrices.get(index).getPrice();
             }
             return handleResult.getSubtotal().divide(BigDecimal.valueOf(this.quantity),4,RoundingMode.HALF_UP);
@@ -123,7 +123,7 @@ public class Commodity {
 
     /**
      * 判断数量和单价大于0
-     * @return
+     * @return boolean
      */
     public boolean isGtZero() {
         return this.getQuantity() > 0 && this.getPrice().compareTo(BigDecimal.ZERO) > 0;
