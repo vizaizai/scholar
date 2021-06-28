@@ -1,7 +1,11 @@
 package com.github.vizaizai.scholar.infrastructure.market;
 
+import com.github.vizaizai.scholar.infrastructure.market.constants.ActivityType;
+import com.github.vizaizai.scholar.infrastructure.market.constants.MutexType;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -16,6 +20,15 @@ public class FullReduction extends Activity{
      * 满减级别
      */
     private List<Level> levels;
+
+
+    public FullReduction() {
+        // 默认禁用互斥
+        this.setMutexType(MutexType.DISABLED);
+        // 默认全部都参与活动
+        this.setItems(Collections.singletonList(Item.createAll()));
+        this.setType(ActivityType.FULL_REDUCTION);
+    }
 
     public static FullReduction create() {
         return new FullReduction();

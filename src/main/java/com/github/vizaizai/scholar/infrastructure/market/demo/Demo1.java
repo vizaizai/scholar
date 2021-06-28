@@ -3,6 +3,7 @@ package com.github.vizaizai.scholar.infrastructure.market.demo;
 import com.alibaba.fastjson.JSON;
 import com.github.vizaizai.scholar.infrastructure.market.Commodity;
 import com.github.vizaizai.scholar.infrastructure.market.Discount;
+import com.github.vizaizai.scholar.infrastructure.market.DiscountItem;
 import com.github.vizaizai.scholar.infrastructure.market.Item;
 import com.github.vizaizai.scholar.infrastructure.market.constants.MutexType;
 import com.github.vizaizai.scholar.infrastructure.market.context.MarketContext;
@@ -24,9 +25,9 @@ public class Demo1 {
          * 构造活动
          */
         List<Item> items = new ArrayList<>();
-        items.add(Item.createOne("123123",2));
-        items.add(Item.createOne("111223",1));
-        items.add(Item.createOne("111111",2));
+        items.add(DiscountItem.createOne("123123",2));
+        items.add(DiscountItem.createOne("111223",1));
+        items.add(DiscountItem.createOne("111111",2));
 
         Discount discount = Discount.create(BigDecimal.valueOf(0.75));
         discount.setId("dis-1");

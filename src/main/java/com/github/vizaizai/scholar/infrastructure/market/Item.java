@@ -16,31 +16,20 @@ public class Item {
      * item标识
      */
     private String id;
-    /**
-     * 最大数量限制(针对折扣)
-     */
-    private Integer maxQuantity;
 
 
-    public static Item create(ItemType type, String id, Integer maxQuantity) {
+    public static Item create(ItemType type, String id) {
         Item item = new Item();
         item.id = id;
         item.type = type;
-        item.maxQuantity = maxQuantity;
         return item;
     }
-    public static Item createOne(String id, Integer maxQuantity) {
-        return create(ItemType.PORTION,id, maxQuantity);
-    }
     public static Item createOne(String id) {
-        return create(ItemType.PORTION,id, -1);
+        return create(ItemType.PORTION,id);
     }
 
     public static Item createAll() {
-        return create(ItemType.ALL,null, -1);
-    }
-    public static Item createAll(Integer maxQuantity) {
-        return create(ItemType.ALL,null, maxQuantity);
+        return create(ItemType.ALL,null);
     }
 
     public ItemType getType() {
@@ -51,7 +40,11 @@ public class Item {
         return id;
     }
 
-    public Integer getMaxQuantity() {
-        return maxQuantity;
+    public void setType(ItemType type) {
+        this.type = type;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

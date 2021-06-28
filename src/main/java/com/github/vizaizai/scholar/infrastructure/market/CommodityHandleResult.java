@@ -21,10 +21,15 @@ public class CommodityHandleResult {
      * 商品小计
      */
     private BigDecimal subtotal;
+    /**
+     * 已减金额
+     */
+    private BigDecimal reducePrice;
 
-    public CommodityHandleResult(Activity activity, BigDecimal subtotal) {
+    public CommodityHandleResult(Activity activity, BigDecimal subtotal, BigDecimal reducePrice) {
         this.activity = activity;
         this.subtotal = subtotal;
+        this.reducePrice = reducePrice;
     }
 
     public CommodityHandleResult(Activity activity, List<CommodityPrice> commodityPrices) {
@@ -52,10 +57,15 @@ public class CommodityHandleResult {
         this.commodityPrices = commodityPrices;
         if (commodityPrices != null) {
             this.subtotal = commodityPrices.stream().map(CommodityPrice::getPrice).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+            this.reducePrice = commodityPrices.stream().map(e-> e.getPrePrice().subtract(e.getPrice())).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
         }
     }
 
     public BigDecimal getSubtotal() {
         return subtotal == null ? BigDecimal.ZERO : subtotal;
+    }
+
+    public BigDecimal getReducePrice() {
+        return reducePrice == null ? BigDecimal.ZERO : reducePrice;
     }
 }

@@ -64,11 +64,11 @@ public class Commodity {
        this.results.add(new CommodityHandleResult(activity,commodityPrices));
     }
 
-    public void addResult(BigDecimal subTotal, Activity activity) {
+    public void addResult(BigDecimal subTotal,BigDecimal reducePrice, Activity activity) {
         if (this.results == null) {
             this.results = new ArrayList<>();
         }
-        this.results.add(new CommodityHandleResult(activity,subTotal));
+        this.results.add(new CommodityHandleResult(activity,subTotal,reducePrice));
     }
 
     public void clearResults() {
@@ -77,6 +77,11 @@ public class Commodity {
         }
     }
 
+    // 原始小计
+    public BigDecimal getOriginalSubTotal() {
+        // 单价 * 数量
+        return this.price.multiply(BigDecimal.valueOf(this.quantity));
+    }
 
     /**
      * 获取小计
@@ -89,8 +94,17 @@ public class Commodity {
             return handleResult.getSubtotal();
 
         }
-        // 单价 * 数量
-        return this.price.multiply(BigDecimal.valueOf(this.quantity));
+        // 原始小计
+        return this.getOriginalSubTotal();
+    }
+
+    /**
+     * 获取原始小计
+     * @return 原始小计
+     */
+    public BigDecimal getReducePrice () {
+        BigDecimal reduce = this.price.multiply(BigDecimal.valueOf(this.quantity)).subtract(this.getSubTotal());
+        return reduce.compareTo(BigDecimal.ZERO) >= 0 ? reduce : BigDecimal.ZERO;
     }
 
     /**

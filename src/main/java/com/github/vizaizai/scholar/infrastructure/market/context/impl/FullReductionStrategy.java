@@ -16,7 +16,8 @@ public class FullReductionStrategy implements MarketStrategy<FullReduction> {
     @Override
     public void doHandle(List<Commodity> commodities, FullReduction activity) {
         List<Commodity> activityCommodities = activity.getActivityCommodities(commodities);
-
+        // 是否达到满减要求
+        boolean isFull = false;
         // 计算参与满减商品总金额
         BigDecimal totalPrice = BigDecimal.ZERO;
         for (Commodity commodity : activityCommodities) {
@@ -31,17 +32,21 @@ public class FullReductionStrategy implements MarketStrategy<FullReduction> {
             // 商品金额大于等于门槛
             if (totalPrice.compareTo(level.getMeet()) >= 0) {
                 activityPrice = totalPrice.subtract(level.getReduce());
+                isFull = true;
                 break;
             }
         }
-        BigDecimal z = BigDecimal.ZERO;
+        // 没有达到满减要求
+        if (!isFull) {
+            return;
+        }
         // 计算满减优惠小计
         for (Commodity commodity : activityCommodities) {
             BigDecimal subTotal = commodity.getSubTotal();
-            // 满减小计
+            // 满减后小计
             BigDecimal fullReductionSubTotal = subTotal.divide(totalPrice,4, RoundingMode.HALF_UP).multiply(activityPrice);
-            z = z.add(fullReductionSubTotal);
-            commodity.addResult(fullReductionSubTotal,activity);
+            // 已减金额
+            commodity.addResult(fullReductionSubTotal,subTotal.subtract(fullReductionSubTotal),activity);
         }
     }
 }

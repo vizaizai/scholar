@@ -1,6 +1,7 @@
 package com.github.vizaizai.scholar.infrastructure.market;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.github.vizaizai.scholar.infrastructure.market.constants.ActivityType;
 import com.github.vizaizai.scholar.infrastructure.market.constants.ItemType;
 import com.github.vizaizai.scholar.infrastructure.market.constants.MutexType;
 
@@ -28,7 +29,7 @@ public class Activity implements Comparable<Activity>{
     @JSONField(serialize= false)
     private List<Item> items;
     /**
-     * 活动参与项映射
+     * 参与项映射
      */
     @JSONField(serialize= false)
     private Map<String, Item> itemsMap = Collections.emptyMap();
@@ -42,11 +43,12 @@ public class Activity implements Comparable<Activity>{
      */
     @JSONField(serialize= false)
     private Integer order;
-
+    /**
+     * 活动类型
+     */
+    private ActivityType type;
 
     public Activity() {
-        this.mutexType = MutexType.DISABLED;
-        this.setItems(Collections.singletonList(Item.createAll()));
     }
 
     public String getId() {
@@ -75,6 +77,9 @@ public class Activity implements Comparable<Activity>{
             this.itemType = ItemType.PORTION;
             return;
         }
+        for (Item item : items) {
+            this.preAddItem(item);
+        }
         this.itemType = this.items.get(0).getType();
 
         if (this.itemType.equals(ItemType.PORTION)) {
@@ -83,10 +88,21 @@ public class Activity implements Comparable<Activity>{
 
     }
 
+    public ActivityType getType() {
+        return type;
+    }
+
+    public void setType(ActivityType type) {
+        this.type = type;
+    }
+
     public void setOrder(Integer order) {
         this.order = order;
     }
 
+    protected void preAddItem(Item item){
+        // empty
+    }
     /**
      * 获取活动商品列表
      * @param commodities 原商品列表
@@ -124,22 +140,6 @@ public class Activity implements Comparable<Activity>{
         return itemsMap.containsKey(commodity.getId());
     }
 
-    /**
-     * 获取商品可参与的数量
-     * @param commodity commodity
-     * @return Limit
-     */
-    public Integer getMaxQuantity(Commodity commodity) {
-        if (this.itemType.equals(ItemType.ALL)) {
-            return this.items.get(0).getMaxQuantity();
-        }
-        Item item = itemsMap.get(commodity.getId());
-        if (item != null) {
-            return item.getMaxQuantity();
-        }
-        return 0;
-    }
-
     public ItemType getItemType() {
         return itemType;
     }
@@ -148,6 +148,9 @@ public class Activity implements Comparable<Activity>{
         return order;
     }
 
+    public Map<String, Item> getItemsMap() {
+        return itemsMap;
+    }
 
     @Override
     public int compareTo(Activity o) {

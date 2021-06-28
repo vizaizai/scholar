@@ -60,7 +60,7 @@ public class EasyHttpTestController {
         return "ok";
     }
 
-    @PostMapping("/addBookUseJSON")
+    @PatchMapping("/addBookUseJSON")
     public String test6(@RequestBody Book book) {
         System.out.println(JSON.toJSONString(book));
         return "ok";

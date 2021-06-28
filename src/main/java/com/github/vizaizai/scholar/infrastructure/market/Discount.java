@@ -1,6 +1,9 @@
 package com.github.vizaizai.scholar.infrastructure.market;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.github.vizaizai.scholar.infrastructure.market.constants.ActivityType;
+import com.github.vizaizai.scholar.infrastructure.market.constants.ItemType;
+import com.github.vizaizai.scholar.infrastructure.market.constants.MutexType;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -22,8 +25,26 @@ public class Discount extends Activity{
     @JSONField(serialize= false)
     private List<Discount> group;
 
+    /**
+     * 活动商品可参与数量列表<商品id,限制数量>
+     */
+    private final Map<String,Integer> balanceList = new HashMap<>();
 
     private Discount() {
+        // 默认禁用互斥
+        this.setMutexType(MutexType.DISABLED);
+        // 默认全部都参与活动
+        this.setItems(Collections.singletonList(DiscountItem.createAll()));
+        this.setType(ActivityType.DISCOUNT);
+    }
+
+    protected void preAddItem(Item item) {
+        if (!(item instanceof DiscountItem)) {
+            throw new IllegalArgumentException("折扣参与项类型错误，清使用DiscountItem");
+        }
+        if (((DiscountItem) item).getMaxQuantity() == null) {
+            throw new IllegalArgumentException("折扣最大限制不能为空");
+        }
     }
 
     public static Discount create(BigDecimal value) {
@@ -86,4 +107,37 @@ public class Discount extends Activity{
         }
         return new ArrayList<>(commodityAllSet);
     }
+
+    /**
+     * 获取活动商品可参与数量
+     * @param commodity commodity
+     * @return Limit
+     */
+    public Integer getQuantity(Commodity commodity) {
+        // 初始化
+        if (!this.balanceList.containsKey(commodity.getId())) {
+            if (this.getItemType().equals(ItemType.ALL)) {
+               this.balanceList.put(commodity.getId(),((DiscountItem)this.getItems().get(0)).getMaxQuantity());
+            }else {
+                Item item = this.getItemsMap().get(commodity.getId());
+                if (item != null) {
+                    this.balanceList.put(commodity.getId(), ((DiscountItem)item).getMaxQuantity());
+                }
+            }
+        }
+        Integer quantity = this.balanceList.get(commodity.getId());
+        return quantity == null ? 0: quantity;
+    }
+
+    /**
+     * 减少活动商品可参与数量
+     * @param commodity
+     */
+    public void decreaseQuantity(Commodity commodity) {
+        Integer quantity = this.balanceList.get(commodity.getId());
+        if (quantity != null && quantity != -1 && quantity != 0) {
+            this.balanceList.put(commodity.getId(), quantity - 1);
+        }
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.github.vizaizai.scholar.infrastructure.market;
 
+import com.github.vizaizai.scholar.infrastructure.market.constants.ActivityType;
 import com.github.vizaizai.scholar.infrastructure.market.context.MarketContext;
 import com.github.vizaizai.scholar.infrastructure.market.context.impl.DiscountStrategy;
 import com.github.vizaizai.scholar.infrastructure.market.context.impl.FullReductionStrategy;
@@ -155,12 +156,9 @@ public class Market {
             }
             this.clearResults(handleCommodities);
         }
-        // 无任何活动
+        // 无任何活动,返回原价总额
         if (marketPrice == null) {
-            marketPrice = BigDecimal.ZERO;
-            for (Commodity commodity : handleCommodities) {
-                marketPrice = marketPrice.add(commodity.getSubTotal());
-            }
+            marketPrice = this.getOriginalPrice();
         }
         System.out.println("计算耗时：" + (System.currentTimeMillis() - s) +"ms");
         return marketPrice;
@@ -191,5 +189,48 @@ public class Market {
 
     private void clearResults(List<Commodity> commodities) {
         commodities.forEach(Commodity::clearResults);
+    }
+
+
+    /**
+     * 原价总额
+     * @return BigDecimal
+     */
+    public BigDecimal getOriginalPrice() {
+        BigDecimal price = BigDecimal.ZERO;
+        for (Commodity commodity : this.commodities) {
+            price = price.add(commodity.getOriginalSubTotal());
+        }
+        return price;
+    }
+
+    public BigDecimal getReducePrice() {
+        return this.getReducePrice(null);
+    }
+
+    /**
+     * 获取优惠金额
+     * @param activityType
+     * @return BigDecimal
+     */
+    public BigDecimal getReducePrice(ActivityType activityType) {
+        BigDecimal reducePrice = BigDecimal.ZERO;
+        for (Commodity commodity : this.commodities) {
+            List<CommodityHandleResult> results = commodity.getResults();
+            if (Utils.isEmpty(results)) {
+                continue;
+            }
+            // 不区分活动类型
+            if (activityType == null) {
+                reducePrice = reducePrice.add(commodity.getReducePrice());
+            }else {
+                for (CommodityHandleResult result : results) {
+                    if (activityType.equals(result.getActivity().getType())) {
+                        reducePrice = reducePrice.add(result.getReducePrice());
+                    }
+                }
+            }
+        }
+        return reducePrice;
     }
 }

@@ -1,10 +1,7 @@
 package com.github.vizaizai.scholar.infrastructure.market.demo;
 
 import com.alibaba.fastjson.JSON;
-import com.github.vizaizai.scholar.infrastructure.market.Commodity;
-import com.github.vizaizai.scholar.infrastructure.market.Discount;
-import com.github.vizaizai.scholar.infrastructure.market.FullReduction;
-import com.github.vizaizai.scholar.infrastructure.market.Item;
+import com.github.vizaizai.scholar.infrastructure.market.*;
 import com.github.vizaizai.scholar.infrastructure.market.context.MarketContext;
 import com.github.vizaizai.scholar.infrastructure.market.context.impl.DiscountStrategy;
 import com.github.vizaizai.scholar.infrastructure.market.context.impl.FullReductionStrategy;
@@ -25,9 +22,9 @@ public class Demo2 {
          * 构造活动
          */
         List<Item> items = new ArrayList<>();
-        items.add(Item.createOne("123123",2));
-        items.add(Item.createOne("111223",1));
-        items.add(Item.createOne("111111",2));
+        items.add(DiscountItem.createOne("123123",2));
+        items.add(DiscountItem.createOne("111223",1));
+        items.add(DiscountItem.createOne("111111",2));
 
         FullReduction fullReduction = FullReduction.create();
         fullReduction.addLevel(BigDecimal.valueOf(30), BigDecimal.valueOf(10));

@@ -1,6 +1,9 @@
 package com.github.vizaizai.scholar.infrastructure.demo;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.web.client.RestTemplate;
 
 import java.lang.reflect.Field;
 
@@ -27,6 +30,11 @@ public class Demo14 {
             System.out.println("Success");
         }
 
+
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+        String efw = restTemplate.patchForObject("http://127.0.0.1:8888/", "efw", String.class);
+        System.out.println(efw);
 
 
     }
