@@ -210,7 +210,7 @@ public class Market {
 
     /**
      * 获取优惠金额
-     * @param activityType
+     * @param activityType 活动类型
      * @return BigDecimal
      */
     public BigDecimal getReducePrice(ActivityType activityType) {
