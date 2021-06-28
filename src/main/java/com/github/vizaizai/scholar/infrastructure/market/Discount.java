@@ -1,6 +1,5 @@
 package com.github.vizaizai.scholar.infrastructure.market;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import com.github.vizaizai.scholar.infrastructure.market.constants.ActivityType;
 import com.github.vizaizai.scholar.infrastructure.market.constants.ItemType;
 import com.github.vizaizai.scholar.infrastructure.market.constants.MutexType;
@@ -17,12 +16,10 @@ public class Discount extends Activity{
     /**
      * 折扣，如7折，8折
      */
-    @JSONField(serialize= false)
     private BigDecimal value;
     /**
      * 折扣组，同组择优选择
      */
-    @JSONField(serialize= false)
     private List<Discount> group;
 
     /**
@@ -38,9 +35,10 @@ public class Discount extends Activity{
         this.setType(ActivityType.DISCOUNT);
     }
 
+    @Override
     protected void preAddItem(Item item) {
         if (!(item instanceof DiscountItem)) {
-            throw new IllegalArgumentException("折扣参与项类型错误，清使用DiscountItem");
+            throw new IllegalArgumentException("折扣参与项类型错误，请使用DiscountItem");
         }
         if (((DiscountItem) item).getMaxQuantity() == null) {
             throw new IllegalArgumentException("折扣最大限制不能为空");

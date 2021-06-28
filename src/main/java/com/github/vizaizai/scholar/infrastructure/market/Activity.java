@@ -1,6 +1,5 @@
 package com.github.vizaizai.scholar.infrastructure.market;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import com.github.vizaizai.scholar.infrastructure.market.constants.ActivityType;
 import com.github.vizaizai.scholar.infrastructure.market.constants.ItemType;
 import com.github.vizaizai.scholar.infrastructure.market.constants.MutexType;
@@ -21,27 +20,22 @@ public class Activity implements Comparable<Activity>{
     /**
      * 互斥类型
      */
-    @JSONField(serialize= false)
     private MutexType mutexType;
     /**
      * 活动参与项列表
      */
-    @JSONField(serialize= false)
     private List<Item> items;
     /**
      * 参与项映射
      */
-    @JSONField(serialize= false)
     private Map<String, Item> itemsMap = Collections.emptyMap();
     /**
      * 参与项类型
      */
-    @JSONField(serialize= false)
     private ItemType itemType;
     /**
      * 顺序
      */
-    @JSONField(serialize= false)
     private Integer order;
     /**
      * 活动类型
