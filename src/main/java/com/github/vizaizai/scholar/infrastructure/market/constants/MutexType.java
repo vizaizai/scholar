@@ -7,7 +7,7 @@ package com.github.vizaizai.scholar.infrastructure.market.constants;
  */
 public enum MutexType {
     /**
-     * 禁用
+     * 禁用（不参与互斥互斥）
      */
     DISABLED(){
         @Override
@@ -17,7 +17,7 @@ public enum MutexType {
     },
 
     /**
-     * 不互斥
+     * 不互斥（与DISABLED、NONE、WITH_MUTEX同享）
      */
     NONE() {
         @Override
@@ -26,7 +26,7 @@ public enum MutexType {
         }
     },
     /**
-     * 全部互斥
+     * 全部互斥（与DISABLED同享）
      */
     ALL() {
         @Override
@@ -35,7 +35,7 @@ public enum MutexType {
         }
     },
     /**
-     * 与互斥活动互斥
+     * 与互斥活动互斥（与DISABLED、NONE同享）
      */
     WITH_MUTEX() {
         @Override
