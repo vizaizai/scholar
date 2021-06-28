@@ -36,6 +36,7 @@ public class Market {
      * 初始化活动组
      */
     private void initActivityGroup(List<Commodity> commodities) {
+        this.commodities = commodities;
         if (Utils.isEmpty(activities)) {
             return;
         }
@@ -46,7 +47,6 @@ public class Market {
                 activity.setOrder(i);
             }
         }
-        this.commodities = commodities;
 
         for (Activity activity1 : activities) {
             // 活动组成员
@@ -123,6 +123,7 @@ public class Market {
     public BigDecimal doMarketing(List<Commodity> commodities) {
         long s = System.currentTimeMillis();
         if (Utils.isEmpty(commodities)) {
+            this.commodities = Collections.emptyList();
             return BigDecimal.ZERO;
         }
         this.initActivityGroup(commodities);

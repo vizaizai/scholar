@@ -17,7 +17,6 @@ import java.util.List;
 public class Demo4 {
     public static void main(String[] args) {
         long l = System.currentTimeMillis();
-        for (int i = 0; i < 1; i++) {
 
         FullReduction fullReduction1 = FullReduction.create(BigDecimal.valueOf(30), BigDecimal.valueOf(5));
         fullReduction1.setId("fullReduction1");
@@ -74,23 +73,14 @@ public class Demo4 {
         commodities.add(new Commodity("1", 4, BigDecimal.valueOf(3)));
         commodities.add(new Commodity("2", 4, BigDecimal.valueOf(4)));
         commodities.add(new Commodity("3", 4, BigDecimal.valueOf(3)));
-        commodities.add(new Commodity("2", 1, BigDecimal.valueOf(3)));
-        commodities.add(new Commodity("4", 10, BigDecimal.valueOf(2)));
-        commodities.add(new Commodity("5", 10, BigDecimal.valueOf(2)));
-        commodities.add(new Commodity("6", 10, BigDecimal.valueOf(2)));
-        commodities.add(new Commodity("7", 10, BigDecimal.valueOf(2)));
-        commodities.add(new Commodity("8", 10, BigDecimal.valueOf(2)));
-        commodities.add(new Commodity("9", 10, BigDecimal.valueOf(2)));
-        commodities.add(new Commodity("10", 10, BigDecimal.valueOf(2)));
-        commodities.add(new Commodity("11", 10, BigDecimal.valueOf(2)));
-            Market market = new Market(activities);
-            BigDecimal marketPrice = market.doMarketing(commodities);
-            System.out.println("计算结果：" + marketPrice.setScale(2, RoundingMode.HALF_UP));
-            System.out.println("原价总额：" + market.getOriginalPrice().setScale(2, RoundingMode.HALF_UP));
-            System.out.println("优惠金额：" + market.getReducePrice().setScale(2, RoundingMode.HALF_UP));
-            System.out.println("折扣优惠：" + market.getReducePrice(ActivityType.DISCOUNT).setScale(2, RoundingMode.HALF_UP));
-            System.out.println("满减优惠：" + market.getReducePrice(ActivityType.FULL_REDUCTION).setScale(2, RoundingMode.HALF_UP));
-        }
+
+        Market market = new Market(activities);
+        BigDecimal marketPrice = market.doMarketing(commodities);
+        System.out.println("计算结果：" + marketPrice.setScale(2, RoundingMode.HALF_UP));
+        System.out.println("原价总额：" + market.getOriginalPrice().setScale(2, RoundingMode.HALF_UP));
+        System.out.println("优惠金额：" + market.getReducePrice().setScale(2, RoundingMode.HALF_UP));
+        System.out.println("折扣优惠：" + market.getReducePrice(ActivityType.DISCOUNT).setScale(2, RoundingMode.HALF_UP));
+        System.out.println("满减优惠：" + market.getReducePrice(ActivityType.FULL_REDUCTION).setScale(2, RoundingMode.HALF_UP));
 
         System.out.println("总耗时：" + (System.currentTimeMillis() - l) + "ms");
     }
