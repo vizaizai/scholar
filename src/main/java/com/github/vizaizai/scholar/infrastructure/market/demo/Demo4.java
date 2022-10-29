@@ -16,16 +16,18 @@ import java.util.List;
  */
 public class Demo4 {
     public static void main(String[] args) {
-        long l = System.currentTimeMillis();
 
+        /*满减1*/
         FullReduction fullReduction1 = FullReduction.create(BigDecimal.valueOf(30), BigDecimal.valueOf(5));
         fullReduction1.setId("fullReduction1");
         fullReduction1.setMutexType(MutexType.WITH_MUTEX);
         List<Item> items1 = new ArrayList<>();
         items1.add(Item.createOne("1"));
+        items1.add(Item.createOne("2"));
         fullReduction1.setItems(items1);
 
 
+        /*满减2*/
         FullReduction fullReduction2 = FullReduction.create(BigDecimal.valueOf(30), BigDecimal.valueOf(10));
         fullReduction2.addLevel(BigDecimal.valueOf(40), BigDecimal.valueOf(15));
         fullReduction2.setId("fullReduction2");
@@ -34,17 +36,15 @@ public class Demo4 {
         items2.add(Item.createOne("2"));
         items2.add(Item.createOne("3"));
         items2.add(Item.createOne("4"));
-
-
         fullReduction2.setItems(items2);
 
 
-
+        /*折扣1*/
         Discount discount = Discount.create(BigDecimal.valueOf(7));
         discount.setOrder(-1);
         discount.setMutexType(MutexType.DISABLED);
         List<Item> items3 = new ArrayList<>();
-        items3.add(DiscountItem.createOne("1",7));
+        items3.add(DiscountItem.createOne("1",1));
         items3.add(DiscountItem.createOne("2"));
         items3.add(DiscountItem.createOne("3"));
         discount.setItems(items3);
@@ -82,7 +82,6 @@ public class Demo4 {
         System.out.println("折扣优惠：" + market.getReducePrice(ActivityType.DISCOUNT).setScale(2, RoundingMode.HALF_UP));
         System.out.println("满减优惠：" + market.getReducePrice(ActivityType.FULL_REDUCTION).setScale(2, RoundingMode.HALF_UP));
 
-        System.out.println("总耗时：" + (System.currentTimeMillis() - l) + "ms");
     }
 
 }

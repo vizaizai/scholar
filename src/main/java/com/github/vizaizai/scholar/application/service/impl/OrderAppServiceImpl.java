@@ -9,6 +9,7 @@ import com.github.vizaizai.scholar.infrastructure.persistence.dataobject.OrderIt
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -35,6 +36,10 @@ public class OrderAppServiceImpl implements OrderAppService {
         orderDo.setTotalPrice(BigDecimal.valueOf(items.stream().mapToDouble(e->e.getPrice().doubleValue() * e.getNum()).sum()));
 
         orderMapper.insert(orderDo);
+
+
+        RestTemplate f;
+        //f.setRequestFactory();
 
         //MybatisMapperProxy
         for (OrderItemDo item : items) {

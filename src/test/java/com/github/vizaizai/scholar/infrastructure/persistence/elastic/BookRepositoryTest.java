@@ -1,20 +1,26 @@
 package com.github.vizaizai.scholar.infrastructure.persistence.elastic;
 
 import com.github.vizaizai.scholar.infrastructure.persistence.dataobject.BookDo;
+import com.github.vizaizai.scholar.infrastructure.persistence.dataobject.OrderForEsDo;
+import com.github.vizaizai.scholar.infrastructure.persistence.dataobject.OrderItemDo;
+import com.github.vizaizai.scholar.infrastructure.persistence.dataobject.OrderItemForEsDo;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,17 +35,16 @@ class BookRepositoryTest {
     @Autowired
     private ElasticsearchOperations elasticsearchOperations;
 
+
     @Test
     void demo() {
 
-        BookDo bookDo1 = new BookDo();
-        bookDo1.setId("book-160554574534");
-        bookDo1.setAuthor("li好");
-        bookDo1.setPrice(BigDecimal.valueOf(65.74));
-        bookDo1.setName("Python编程");
-        bookDo1.setDescription("Python编程 从入门到实践 【图灵程序设计丛书】Python3.5编程入门图书 机器学习 数据处理 网络爬虫热门编程语");
+        OrderForEsDo orderForEsDo = new OrderForEsDo();
+        orderForEsDo.setId("id_4444444");
+        orderForEsDo.setItems(Arrays.asList(new OrderItemForEsDo("item_2","订单项3")
+                ,new OrderItemForEsDo("item_1","订单项4")));
 
-        elasticsearchOperations.save(bookDo1);
+        elasticsearchOperations.save(orderForEsDo);
         //bookRepository.save(bookDo1);
     }
     @Test
@@ -56,6 +61,18 @@ class BookRepositoryTest {
         //System.out.println(searchPage.getTotalElements());
         //List<BookDo> list = bookRepository.findByNameAndDescription("python编程", "python编程");
         //System.out.println(list.size());
+
+        Query searchQuery = new NativeSearchQueryBuilder()
+                .withQuery(QueryBuilders.matchQuery("items.name","132123"))
+                .withPageable(PageRequest.of(0, 10))
+                .build();
+
+        SearchHits<OrderForEsDo> searchHits = elasticsearchOperations.search(searchQuery, OrderForEsDo.class);
+
+        List<OrderForEsDo> collect = searchHits.get().map(SearchHit::getContent).collect(Collectors.toList());
+        System.out.println(searchHits.getTotalHits());
+        System.out.println(collect.size());
+
     }
 
     @Test

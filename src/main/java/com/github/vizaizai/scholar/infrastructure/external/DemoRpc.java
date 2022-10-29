@@ -27,5 +27,5 @@ public interface DemoRpc {
     Result<List<BookDo>> listAllBooks();
 
     @Get("/books/search")
-    Result<List<BookDo>> searchBooks(@Query("keyword") String keyword);
+    Result<List<BookDo>> searchBooks(@Param("keyword") String keyword);
 }

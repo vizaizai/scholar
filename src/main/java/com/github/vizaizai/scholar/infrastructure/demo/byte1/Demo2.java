@@ -13,6 +13,7 @@ import net.bytebuddy.matcher.ElementMatchers;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 
 /**
  * @author liaochongwei
@@ -35,7 +36,8 @@ public class Demo2 {
                 .method(ElementMatchers.isAbstract())
                 .intercept(MethodDelegation.to(new SingerAgentInterceptor()))
                 .make();
-        dynamicType.saveIn(new File("./target/"));
+        TimeConsuming.printMS("byte-create");
+        //dynamicType.saveIn(new File("./target/"));
         ProxyDemo proxyByte = (ProxyDemo)dynamicType
                 .load(Demo2.class.getClassLoader(), ClassLoadingStrategy.Default.WRAPPER)
                 .getLoaded()

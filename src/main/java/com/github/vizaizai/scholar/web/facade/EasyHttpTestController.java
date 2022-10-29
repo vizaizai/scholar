@@ -3,6 +3,7 @@ package com.github.vizaizai.scholar.web.facade;
 import com.alibaba.fastjson.JSON;
 import com.github.vizaizai.scholar.web.dto.Book;
 import com.github.vizaizai.scholar.web.dto.Result;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
@@ -90,6 +92,12 @@ public class EasyHttpTestController {
     }
 
 
+    @PostMapping("/open/api/external/createorder")
+    public String test9(@RequestBody String body) throws IOException {
+        System.out.println(body);
+        return "{}";
+    }
+
     private void saveFile(MultipartFile... files) throws IOException {
         if (files == null || files.length == 0) {
             System.out.println("files is Empty");
@@ -99,8 +107,15 @@ public class EasyHttpTestController {
             if (file == null) {
                 continue;
             }
-            String filename = file.getOriginalFilename() == null ? "file" : file.getOriginalFilename();
+            String filename = StringUtils.isBlank(file.getOriginalFilename()) ? "file" : file.getOriginalFilename();
             file.transferTo(new File("D:"+File.separator + filename));
         }
+    }
+
+    public static void main(String[] args) {
+
+        String s = "🍉";
+
+        System.out.println(new String(s.getBytes(StandardCharsets.UTF_8)));
     }
 }

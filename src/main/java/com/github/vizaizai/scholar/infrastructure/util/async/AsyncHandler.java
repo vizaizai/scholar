@@ -1,7 +1,7 @@
 package com.github.vizaizai.scholar.infrastructure.util.async;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +55,7 @@ public class AsyncHandler<T> {
             handlers.get(i).getData().add(this.data.get(threadTaskCount * maxThreadSize + i));
         }
 
-        CompletableFuture<Void>[] futureList = handlers.stream().filter(run -> CollectionUtils.isNotEmpty(run.getData()))
+        CompletableFuture<Void>[] futureList = handlers.stream().filter(run -> !CollectionUtils.isEmpty(run.getData()))
                 .map(run -> this.executor == null ? CompletableFuture.runAsync(run) :  CompletableFuture.runAsync(run, executor))
                 .toArray(CompletableFuture[]::new);
 

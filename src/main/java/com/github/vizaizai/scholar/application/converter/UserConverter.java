@@ -15,6 +15,7 @@ public interface UserConverter {
     @Mapping(target = "birthday", dateFormat = "yyyy-MM-dd")
     @Mapping(target = "balance", numberFormat = "#.00")
     @Mapping(target = "createTime", qualifiedByName = "dateTimeToTimestamp")
+    @Mapping(target = "name", expression = "java(user.getName().toUpperCase())")
     UserDTO toDto(User user);
 
     //@InheritInverseConfiguration
