@@ -74,6 +74,7 @@ public class Activity {
         newActivity.setSort(this.sort);
         newActivity.setGroup(this.group);
         newActivity.setItemIds(this.itemIds);
+        newActivity.setShareType(this.shareType);
         return newActivity;
     }
 
