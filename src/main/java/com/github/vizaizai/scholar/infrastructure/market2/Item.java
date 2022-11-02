@@ -9,37 +9,38 @@ import java.util.List;
  * @author liaochongwei
  * @date 2022/10/24 16:49
  */
-public class Item implements Cloneable{
+public class Item {
     /**
      * 标识
      */
-    private final String id;
+    protected final String id;
     /**
      * 参与项单价
      */
-    private final BigDecimal price;
+    protected final BigDecimal price;
     /**
      * 参与项数量
      */
-    private final int num;
+    protected final int num;
     /**
      * 附加价
      */
-    private BigDecimal additionPrice = BigDecimal.ZERO;
+    protected BigDecimal additionPrice = BigDecimal.ZERO;
     /**
      * 总价
      */
-    private BigDecimal totalPrice = null;
+    protected BigDecimal totalPrice = null;
 
     /**
      * 优惠明细列表
      */
-    private final List<DiscountItem> discountDetails = new ArrayList<>();
+    protected List<DiscountItem> discountDetails;
 
     public Item(String id, BigDecimal price, int num) {
         this.id = id;
         this.price = price;
         this.num = num;
+        discountDetails = new ArrayList<>();
     }
 
     public BigDecimal getPrice() {
@@ -57,6 +58,10 @@ public class Item implements Cloneable{
     public void setAdditionPrice(BigDecimal additionPrice) {
         this.additionPrice = additionPrice;
     }
+    public BigDecimal getAdditionPrice() {
+        return additionPrice;
+    }
+
 
     public BigDecimal getTotalPrice() {
         if (this.totalPrice == null) {
@@ -64,15 +69,11 @@ public class Item implements Cloneable{
         }
         return totalPrice;
     }
-
-    public BigDecimal getAdditionPrice() {
-        return additionPrice;
-    }
     /**
      * 初始化总价
      */
     public void initTotalPrice() {
-        this.totalPrice = this.price.multiply(BigDecimal.valueOf(this.num).add(this.additionPrice));
+        this.totalPrice = this.price.multiply(BigDecimal.valueOf(this.num)).add(this.additionPrice);
     }
 
     /**
@@ -82,7 +83,6 @@ public class Item implements Cloneable{
     public void addDiscountDetail(DiscountItem discountItem) {
         this.discountDetails.add(discountItem);
     }
-
     /**
      * 获取优惠明细列表
      * @return
@@ -115,13 +115,10 @@ public class Item implements Cloneable{
         return this.getTotalPrice();
     }
 
-
-    @Override
-    public Item clone() {
-        try {
-            return (Item) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
-        }
+    public Item cloneItem() {
+        Item newItem = new Item(this.id,this.price, this.num);
+        newItem.totalPrice = this.totalPrice;
+        newItem.additionPrice = this.additionPrice;
+        return newItem;
     }
 }

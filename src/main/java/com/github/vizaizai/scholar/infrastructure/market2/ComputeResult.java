@@ -1,10 +1,10 @@
 package com.github.vizaizai.scholar.infrastructure.market2;
 
+import com.github.vizaizai.scholar.infrastructure.market2.context.Activity;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 计算结果
@@ -27,11 +27,15 @@ public class ComputeResult {
      */
     private BigDecimal finalTotalPrice = BigDecimal.ZERO;
     /**
-     * 参与项优惠映射
+     * 活动信息
      */
-    private Map<String,List<DiscountItem>> itemDiscountMapping;
+    private List<Activity> activities;
     /**
-     * 活动优惠映射
+     * 参与项信息
      */
-    private Map<String, List<DiscountItem>> activityDiscountMapping;
+    private List<Item> items;
+
+
+
+
 }

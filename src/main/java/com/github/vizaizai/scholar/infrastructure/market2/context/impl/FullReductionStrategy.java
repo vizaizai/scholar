@@ -31,6 +31,9 @@ public class FullReductionStrategy implements MarketStrategy<FullReductionActivi
                 break;
             }
         }
+        if (totalDiscountAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            return;
+        }
         // 优惠明细
         List<DiscountItem> discountItems = new ArrayList<>();
 
@@ -38,7 +41,7 @@ public class FullReductionStrategy implements MarketStrategy<FullReductionActivi
         BigDecimal lastItemDiscountAmount = totalDiscountAmount;
         // 计算参与项的分摊优惠
         for (int i = 0; i < actualItems.size() - 1; i++) {
-            Item item = actualItems.get(0);
+            Item item = actualItems.get(i);
             DiscountItem discountItem = new DiscountItem();
             discountItem.setId(item.getId());
             discountItem.setActivityId(activity.getId());

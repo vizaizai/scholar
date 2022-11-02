@@ -35,15 +35,18 @@ public class Commodity extends Item {
      */
     private void resetTotalPrice() {
         if (this.everyPackage != null && this.packagePrice != null) {
-            // 总包装费
-            BigDecimal totalPackagePrice = BigDecimal.valueOf(this.getNum())
+            // 把打包费作为附加费用
+            this.additionPrice= BigDecimal.valueOf(this.getNum())
                     .divide(BigDecimal.valueOf(this.everyPackage), 0, RoundingMode.UP)
                     .multiply(packagePrice)
                     .setScale(2, RoundingMode.HALF_UP);
-            // 把打包费作为附加费用
-            this.setAdditionPrice(totalPackagePrice);
             // 初始化总金额
             this.initTotalPrice();
         }
     }
+    @Override
+    public Item cloneItem() {
+        return new Commodity(this.id, this.price, this.num, this.everyPackage, this.packagePrice);
+    }
+
 }

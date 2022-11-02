@@ -38,7 +38,9 @@ public class FullReductionActivity extends Activity{
 
     public FullReductionActivity addRule(BigDecimal meetPrice, BigDecimal discountPrice) {
         if (meetPrice == null || discountPrice == null
-        ||meetPrice.compareTo(BigDecimal.ZERO) < 0 || discountPrice.compareTo(BigDecimal.ZERO) < 0) {
+                || meetPrice.compareTo(BigDecimal.ZERO) < 0
+                || discountPrice.compareTo(BigDecimal.ZERO) < 0
+                || meetPrice.compareTo(discountPrice) < 0) {
             throw new IllegalArgumentException("满减活动参数错误~");
         }
         rules.add(new Rule(meetPrice, discountPrice));

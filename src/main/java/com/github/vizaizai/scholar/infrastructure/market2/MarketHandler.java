@@ -23,21 +23,22 @@ public class MarketHandler {
      */
     private final List<Activity> activities;
     /**
-     * 活动组
+     * 优惠选择
      */
-    private Map<Activity.Group,List<Activity>> activityGroup;
+    private final DiscountOption discountOption;
     /**
-     * 活动方案列表
+     * 活动规划列表
      */
-    List<Set<Activity>> activityCombines = new ArrayList<>();
+    List<Set<Activity>> activityPlans = new ArrayList<>();
     /**
      * 排序器
      */
     Comparator<Activity> comparator1 = Comparator.comparing(e-> e.getGroup().getSort());
     Comparator<Activity> comparator2 = Comparator.comparing(Activity::getSort);
 
-    public MarketHandler(List<Activity> activities) {
+    public MarketHandler(List<Activity> activities, DiscountOption discountOption) {
         this.activities = activities;
+        this.discountOption = discountOption;
         init();
     }
 
@@ -49,15 +50,13 @@ public class MarketHandler {
         for (int i = 0; i < this.activities.size(); i++) {
             this.activities.get(i).setSort(i);
         }
-        // 活动分组
-        this.activityGroup = activities.stream().collect(Collectors.groupingBy(Activity::getGroup));
 
-        // 计算所有活动方案
+        // 组合执行方案列表
         for (int i = 0; i < this.activities.size(); i++) {
 
-            Set<Activity> activityCombine = new HashSet<>();
+            Set<Activity> activityPlan = new HashSet<>();
             Activity activity1 = this.activities.get(i);
-            activityCombine.add(activity1);
+            activityPlan.add(activity1);
 
             for (Activity activity2 : this.activities) {
                 // 同一个活动跳过
@@ -66,33 +65,42 @@ public class MarketHandler {
                 }
                 // 同一组活动可以同享
                 if (activity1.getGroup().equals(activity2.getGroup())) {
-                    activityCombine.add(activity2);
+                    activityPlan.add(activity2);
                 } else {
                     // 和前面的活动集合都可同享
-                    if (activity2.shareTo(activityCombine)) {
-                        activityCombine.add(activity2);
+                    if (activity2.shareTo(activityPlan)) {
+                        activityPlan.add(activity2);
                     }
                 }
             }
-            this.addCombine(activityCombine);
+            this.addPlan(activityPlan);
         }
     }
 
     /**
-     * 添加执行方案
-     * @param activityCombine
+     * 添加活动规划
+     * @param activityPlan
      */
-    private void addCombine(Set<Activity> activityCombine) {
+    private void addPlan(Set<Activity> activityPlan) {
+        // 判断是否包含必要活动
+        List<String> must = this.discountOption.getMust();
+        if (must != null && !must.isEmpty()) {
+            List<String> ids = activityPlan.stream().map(Activity::getId).collect(Collectors.toList());
+            if (!ids.containsAll(must)) {
+                return;
+            }
+        }
+
         // 判断当前方案是否存在，若存在则过滤
         boolean flag = false;
-        for (Set<Activity>  item : activityCombines) {
-            if (item.size() == activityCombine.size() && item.containsAll(activityCombine)) {
+        for (Set<Activity>  item : activityPlans) {
+            if (item.size() == activityPlan.size() && item.containsAll(activityPlan)) {
                 flag = true;
                 break;
             }
         }
         if (!flag) {
-            activityCombines.add(activityCombine);
+            activityPlans.add(activityPlan);
         }
     }
 
@@ -103,45 +111,61 @@ public class MarketHandler {
         }
         // 总价
         BigDecimal totalPrice = items.stream().map(Item::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
-        result.setTotalPrice(totalPrice);
 
-        // 计算所有的组合方案
-        for (Set<Activity> activityCombine : this.activityCombines) {
-            // 复制活动并且排序
-            List<Activity> sortedActivities = activityCombine
-                    .stream()
-                    .map(Activity::cloneActivity)
-                    .sorted(comparator1.thenComparing(comparator2))
-                    .collect(Collectors.toList());
-            // 克隆待计算列表，并且清除上一次的计算信息
-            List<Item> tempItems = items.stream().map(e->{
-                e.getDiscountDetails().clear();
-                return e.clone();
-            }).collect(Collectors.toList());
-            // 依次计算
-            for (Activity activity : sortedActivities) {
-                MarketContext<Activity> marketContext = new MarketContext<>(activity.getMarketStrategy());
-                marketContext.doHandle(tempItems, activity);
-            }
-            // 总优惠
-            BigDecimal discountAmount = sortedActivities.stream().map(Activity::getDiscountAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-            result.setTotalDiscountAmount(discountAmount);
-            result.setFinalTotalPrice(totalPrice.subtract(discountAmount));
-
-            Map<String, List<DiscountItem>> itemDiscountMapping = tempItems.stream()
-                    .flatMap(e -> e.getDiscountDetails().stream())
-                    .collect(Collectors.groupingBy(DiscountItem::getId));
-            result.setItemDiscountMapping(itemDiscountMapping);
-
-            Map<String, List<DiscountItem>> activityDiscountMapping = sortedActivities.stream()
-                    .flatMap(e -> e.getDiscountItems().stream())
-                    .collect(Collectors.groupingBy(DiscountItem::getActivityId));
-            result.setActivityDiscountMapping(activityDiscountMapping);
-
-            System.out.println("方案：" + JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect));
-
+        if (this.activityPlans.isEmpty()) {
+            result.setTotalPrice(totalPrice);
+            result.setFinalTotalPrice(totalPrice);
+            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>活动为空");
+            return result;
         }
 
-        return result;
+        // 判断优惠模式
+        if (this.discountOption.getMode() == DiscountOption.MODE_FIRST) {
+            return this.execute(this.activityPlans.get(0),items, totalPrice);
+        }else if (this.discountOption.getMode() == DiscountOption.MODE_LAST) {
+            return this.execute(this.activityPlans.get(this.activityPlans.size() - 1),items, totalPrice);
+        }else {
+            // 计算最佳优惠
+            List<ComputeResult> results = new ArrayList<>();
+            for (Set<Activity> activityPlan : this.activityPlans) {
+                results.add(this.execute(activityPlan,items, totalPrice));
+            }
+           return results.stream().max(Comparator.comparing(ComputeResult::getTotalDiscountAmount)).orElse(result);
+        }
     }
+
+    /**
+     * 执行计算营销
+     * @param activitySolution 方案
+     * @param items 活动参与项
+     * @param totalPrice 总价
+     * @return 计算结果
+     */
+    private ComputeResult execute(Set<Activity> activitySolution, List<Item> items, BigDecimal totalPrice) {
+        ComputeResult computeResult = new ComputeResult();
+        computeResult.setTotalPrice(totalPrice);
+        // 复制活动并且排序
+        List<Activity> sortedActivities = activitySolution
+                .stream()
+                .map(Activity::cloneActivity)
+                .sorted(comparator1.thenComparing(comparator2))
+                .collect(Collectors.toList());
+        // 克隆待计算列表，并且清除上一次的计算信息
+        List<Item> activityItems = items.stream().map(Item::cloneItem).collect(Collectors.toList());
+        // 依次计算
+        for (Activity activity : sortedActivities) {
+            MarketContext<Activity> marketContext = new MarketContext<>(activity.getMarketStrategy());
+            marketContext.doHandle(activityItems, activity);
+        }
+        // 总优惠
+        BigDecimal discountAmount = sortedActivities.stream().map(Activity::getDiscountAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        computeResult.setTotalDiscountAmount(discountAmount);
+        computeResult.setFinalTotalPrice(totalPrice.subtract(discountAmount));
+        computeResult.setItems(activityItems);
+        computeResult.setActivities(sortedActivities);
+        System.out.println("方案：" + JSON.toJSONString(computeResult, SerializerFeature.DisableCircularReferenceDetect));
+
+        return computeResult;
+    }
+
 }
