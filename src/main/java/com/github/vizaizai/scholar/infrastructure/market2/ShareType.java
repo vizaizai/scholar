@@ -17,7 +17,7 @@ public enum ShareType {
     },
 
     /**
-     * 同享 (与DISABLED、SHARE、WITH_MUTEX同享）
+     * 同享 (与DISABLED、SHARE、ONLY_SHARE同享）
      */
     SHARE() {
         @Override
@@ -40,7 +40,7 @@ public enum ShareType {
     ONLY_SHARE() {
         @Override
         public boolean shareTo(ShareType type) {
-            return !type.equals(ONLY_SHARE) && !type.equals(NON_SHARE);
+            return type.equals(SHARE) || type.equals(DISABLED);
         }
     };
 

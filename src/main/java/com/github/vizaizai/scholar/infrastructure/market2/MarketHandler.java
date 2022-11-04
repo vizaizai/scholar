@@ -6,10 +6,12 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.github.vizaizai.scholar.infrastructure.market2.context.Activity;
 import com.github.vizaizai.scholar.infrastructure.market2.context.MarketContext;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 营销处理器
@@ -51,30 +53,50 @@ public class MarketHandler {
             this.activities.get(i).setSort(i);
         }
 
-        // 组合执行方案列表
+        // 活动全排列
         for (int i = 0; i < this.activities.size(); i++) {
-
-            Set<Activity> activityPlan = new HashSet<>();
-            Activity activity1 = this.activities.get(i);
-            activityPlan.add(activity1);
-
-            for (Activity activity2 : this.activities) {
-                // 同一个活动跳过
-                if (activity1.equals(activity2)) {
-                    continue;
-                }
-                // 同一组活动可以同享
-                if (activity1.getGroup().equals(activity2.getGroup())) {
-                    activityPlan.add(activity2);
-                } else {
-                    // 和前面的活动集合都可同享
-                    if (activity2.shareTo(activityPlan)) {
-                        activityPlan.add(activity2);
+            Activity activity = this.activities.get(i);
+            // 两两同享的活动列表
+            List<Activity>  shareActivities = this.activities.stream().filter(e -> e.shareTo(activity)).collect(Collectors.toList());
+            // 组合所有情况
+            for (int j = 1; j <= shareActivities.size(); j++) {
+                List<List<Activity>> combinations = combination(shareActivities, j);
+                if (combinations != null) {
+                    for (List<Activity> combination : combinations) {
+                        Set<Activity> tempActivities = new HashSet<>();
+                        // 当前组合是否全部两两同享
+                        boolean flag = true;
+                        for (Activity temp : combination) {
+                            if (!tempActivities.isEmpty() && !temp.allShareTo(tempActivities)) {
+                                flag = false;
+                                break;
+                            }
+                            tempActivities.add(temp);
+                        }
+                        if (flag) {
+                            tempActivities.add(activity);
+                            this.addPlan(tempActivities);
+                        }
                     }
                 }
+
             }
-            this.addPlan(activityPlan);
         }
+
+        System.out.println("====================活动规划-开始=============");
+        for (int i = 0; i < activityPlans.size(); i++) {
+            Set<Activity> activitySet = activityPlans.get(i);
+            List<Activity> sortedActivities = activitySet
+                    .stream()
+                    .sorted(comparator1.thenComparing(comparator2))
+                    .collect(Collectors.toList());
+            System.out.print("执行规划" +(i + 1) + ":");
+            for (Activity activity : sortedActivities) {
+                System.out.print(activity.getId() + "--->");
+            }
+            System.out.println("");
+        }
+        System.out.println("====================活动规划-结束=============");
     }
 
     /**
@@ -91,17 +113,31 @@ public class MarketHandler {
             }
         }
 
-        // 判断当前方案是否存在，若存在则过滤
         boolean flag = false;
-        for (Set<Activity>  item : activityPlans) {
-            if (item.size() == activityPlan.size() && item.containsAll(activityPlan)) {
+        Iterator<Set<Activity>> iterator = activityPlans.iterator();
+        while (iterator.hasNext()) {
+            Set<Activity> item = iterator.next();
+            // 当前方案已存在
+            if (item.containsAll(activityPlan)) {
                 flag = true;
                 break;
+            }
+            // 当前方案包含已存在的方案，删除已存在的
+            if (activityPlan.containsAll(item)) {
+                iterator.remove();
             }
         }
         if (!flag) {
             activityPlans.add(activityPlan);
         }
+    }
+
+    public static void main(String[] args) {
+        List<Integer> integers1 = Arrays.asList(1, 3, 4, 5);
+        List<Integer> integers2 = Arrays.asList(1, 3, 4, 5);
+
+        System.out.println(integers2.containsAll(integers1));
+
     }
 
     public ComputeResult execute(List<Item> items) {
@@ -115,7 +151,6 @@ public class MarketHandler {
         if (this.activityPlans.isEmpty()) {
             result.setTotalPrice(totalPrice);
             result.setFinalTotalPrice(totalPrice);
-            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>活动为空");
             return result;
         }
 
@@ -136,16 +171,16 @@ public class MarketHandler {
 
     /**
      * 执行计算营销
-     * @param activitySolution 方案
+     * @param activityPlan 执行规划
      * @param items 活动参与项
      * @param totalPrice 总价
      * @return 计算结果
      */
-    private ComputeResult execute(Set<Activity> activitySolution, List<Item> items, BigDecimal totalPrice) {
+    private ComputeResult execute(Set<Activity> activityPlan, List<Item> items, BigDecimal totalPrice) {
         ComputeResult computeResult = new ComputeResult();
         computeResult.setTotalPrice(totalPrice);
         // 复制活动并且排序
-        List<Activity> sortedActivities = activitySolution
+        List<Activity> sortedActivities = activityPlan
                 .stream()
                 .map(Activity::cloneActivity)
                 .sorted(comparator1.thenComparing(comparator2))
@@ -166,6 +201,31 @@ public class MarketHandler {
         System.out.println("方案：" + JSON.toJSONString(computeResult, SerializerFeature.DisableCircularReferenceDetect));
 
         return computeResult;
+    }
+
+    /**
+     * 组合算法
+     * @param input 输入列表
+     * @param k 组合元素数
+     * @param <E>
+     * @return
+     */
+    public static<E> List<List<E>> combination(List<E> input,int k){
+        if(input.size() < k) return null;
+        List<List<E>> result=new ArrayList<>();
+        combination(input,result,new ArrayList<>(),0, k, k );
+        return result;
+    }
+    public static<E> void combination(List<E> input, List<List<E>> result, List<E> temp, int start,int end,int k){
+        if(temp.size()==k) {
+            result.add(temp);
+            return;
+        }
+        for(int i = start;i < input.size() - end + 1; i++){
+            List<E> copyTemp = new ArrayList<>(temp);
+            copyTemp.add(input.get(i));
+            combination(input,result,copyTemp,i+1,end-1,k);
+        }
     }
 
 }

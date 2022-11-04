@@ -5,10 +5,7 @@ import com.github.vizaizai.scholar.infrastructure.market2.Item;
 import com.github.vizaizai.scholar.infrastructure.market2.ShareType;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author liaochongwei
@@ -40,9 +37,13 @@ public class Activity {
      */
     private int sort;
     /**
-     * 分组id（同一组的活动都同享）
+     * 分组id
      */
     private Group group = undefinedGroup;
+    /**
+     * 组内同享类型
+     */
+    private ShareType groupShareType = ShareType.DISABLED;
     /**
      * 优惠明细
      */
@@ -114,15 +115,20 @@ public class Activity {
     /**
      * 两两是否能同享
      */
-    public boolean shareTo(Set<Activity> activities) {
-        Activity activity = activities.stream()
-                .filter(e -> !e.shareType.shareTo(this.shareType))
-                .findAny()
-                .orElse(null);
-        // 当存在一个不能同享的，则返回false
-        return activity == null;
+    public boolean allShareTo(Collection<Activity> activities) {
+        return activities.stream().allMatch(this::shareTo);
     }
-
+    public boolean shareTo(Activity other) {
+        // 同组看组内的同享，非同组看组外同享
+        if (other == this) {
+            return false;
+        }
+        if (other.getGroup().equals(this.group)) {
+            return other.getGroupShareType().shareTo(this.groupShareType);
+        }else {
+            return other.getShareType().shareTo(this.shareType);
+        }
+    }
 
 
     public String getId() {
@@ -183,6 +189,14 @@ public class Activity {
         }
     }
 
+    public ShareType getGroupShareType() {
+        return groupShareType;
+    }
+
+    public void setGroupShareType(ShareType groupShareType) {
+        this.groupShareType = groupShareType;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -218,5 +232,6 @@ public class Activity {
         public int getSort() {
             return sort;
         }
+
     }
 }
