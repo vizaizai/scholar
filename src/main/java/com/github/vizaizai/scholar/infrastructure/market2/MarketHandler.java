@@ -6,12 +6,10 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.github.vizaizai.scholar.infrastructure.market2.context.Activity;
 import com.github.vizaizai.scholar.infrastructure.market2.context.MarketContext;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * 营销处理器
