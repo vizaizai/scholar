@@ -5,6 +5,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.github.vizaizai.scholar.infrastructure.market2.*;
 import com.github.vizaizai.scholar.infrastructure.market2.context.Activity;
 import com.github.vizaizai.scholar.infrastructure.market2.context.FullReductionActivity;
+import com.github.vizaizai.scholar.infrastructure.market2.context.MultiOnSaleActivity;
 import com.github.vizaizai.scholar.infrastructure.market2.context.OnSaleActivity;
 
 import java.math.BigDecimal;
@@ -19,8 +20,8 @@ import java.util.List;
 public class Demo1 {
     public static void main(String[] args) {
 
-
         Activity.Group shop_zhekou = new Activity.Group("门店折扣", 1,true);
+        Activity.Group shop_multi_zhekou = new Activity.Group("门店折扣 + 会员价", 1,true);
         Activity.Group shop_manjian = new Activity.Group("门店满减", 2,true);
         Activity.Group shop_youhuiquan = new Activity.Group("门店优惠券", 3,false);
         Activity.Group platform_youhuiquan = new Activity.Group("平台优惠券", 4,false);
@@ -100,12 +101,27 @@ public class Demo1 {
         a_platform_lijian5.setTag("平台立减5");
         activities.add(a_platform_lijian5);
 
-        //for (int i = 0; i < 10; i++) {
+
+
+        OnSaleActivity a_shop_zhekou_1 = OnSaleActivity.create("a_shop_zhekou_1",BigDecimal.valueOf(0.7));
+        a_shop_zhekou_1.setTag("门店折扣1");
+
+        OnSaleActivity a_shop_zhekou_2 = OnSaleActivity.create("a_shop_zhekou_2",BigDecimal.valueOf(0.6));
+        a_shop_zhekou_2.setTag("门店会员折扣2");
+
+        // 多打折活动
+        MultiOnSaleActivity multiOnSaleActivity = MultiOnSaleActivity.create(Arrays.asList(a_shop_zhekou_1, a_shop_zhekou_2));
+        multiOnSaleActivity.setGroup(shop_multi_zhekou);
+        activities.add(multiOnSaleActivity);
+
+
+
+        for (int i = 0; i < 100; i++) {
             long s = System.currentTimeMillis();
             MarketHandler marketHandler = new MarketHandler(activities, items, DiscountOption.best().must(Arrays.asList("a_shop_youhuiquan")));
             ComputeResult result = marketHandler.execute();
-            System.out.println("最终计算结果：" + JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect));
+            //System.out.println("最终计算结果：" + JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect));
             System.out.println("耗时：" + (System.currentTimeMillis() - s) + "ms");
-         //}
+         }
     }
 }

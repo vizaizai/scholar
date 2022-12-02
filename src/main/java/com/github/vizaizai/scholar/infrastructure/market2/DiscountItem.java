@@ -9,6 +9,10 @@ import java.math.BigDecimal;
  */
 public class DiscountItem {
     /**
+     * 参与项pid
+     */
+    private String pid;
+    /**
      * 参与项标识
      */
     private String id;
@@ -32,7 +36,18 @@ public class DiscountItem {
      * 分摊优惠金额
      */
     private BigDecimal discountAmount;
+    /**
+     * 优惠项数量
+     */
+    private int discountNum;
 
+    public String getPid() {
+        return pid;
+    }
+
+    public void setPid(String pid) {
+        this.pid = pid;
+    }
 
     public String getId() {
         return id;
@@ -80,5 +95,13 @@ public class DiscountItem {
 
     public void setDiscountAmount(BigDecimal discountAmount) {
         this.discountAmount = discountAmount;
+    }
+
+    public int getDiscountNum() {
+        return discountNum;
+    }
+
+    public void setDiscountNum(int discountNum) {
+        this.discountNum = discountNum;
     }
 }

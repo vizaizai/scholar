@@ -11,7 +11,7 @@ import java.util.*;
  * @author liaochongwei
  * @date 2022/10/24 19:15
  */
-public class Activity {
+public abstract class Activity {
     /**
      * 默认分组
      */
@@ -58,9 +58,7 @@ public class Activity {
     }
 
 
-    public Activity newActivity() {
-        return new Activity(this.id,this.marketStrategy);
-    }
+    public abstract Activity newActivity();
     /**
      * 克隆活动
      * @return
@@ -73,6 +71,10 @@ public class Activity {
         newActivity.setItemIds(this.itemIds);
         newActivity.setShareType(this.shareType);
         return newActivity;
+    }
+
+    public List<Activity> actualActivities() {
+        return Collections.singletonList(this);
     }
 
     /**
@@ -142,6 +144,13 @@ public class Activity {
         }
     }
 
+    public void addDiscountItems(List<DiscountItem> discountItems) {
+        if (this.discountItems == null) {
+            this.discountItems = new ArrayList<>();
+        }
+        this.discountItems.addAll(discountItems);
+    }
+
 
     public String getId() {
         return id;
@@ -187,9 +196,6 @@ public class Activity {
         return discountItems;
     }
 
-    public void setDiscountItems(List<DiscountItem> discountItems) {
-        this.discountItems = discountItems;
-    }
 
     public Group getGroup() {
         return group;

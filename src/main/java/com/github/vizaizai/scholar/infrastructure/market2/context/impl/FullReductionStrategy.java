@@ -43,6 +43,7 @@ public class FullReductionStrategy implements MarketStrategy<FullReductionActivi
         for (int i = 0; i < actualItems.size() - 1; i++) {
             Item item = actualItems.get(i);
             DiscountItem discountItem = new DiscountItem();
+            discountItem.setPid(item.getPid());
             discountItem.setId(item.getId());
             discountItem.setActivityId(activity.getId());
             // 计算分摊比例
@@ -55,6 +56,7 @@ public class FullReductionStrategy implements MarketStrategy<FullReductionActivi
             discountItem.setDiscountAmount(itemDiscountAmount);
             // 优惠后价格
             discountItem.setPostPrice(discountItem.getPrePrice().subtract(itemDiscountAmount));
+            discountItem.setDiscountNum(item.getNum());
             item.addDiscountDetail(discountItem);
             discountItems.add(discountItem);
 
@@ -64,16 +66,19 @@ public class FullReductionStrategy implements MarketStrategy<FullReductionActivi
             if (size > 1 && i ==  size - 2) {
                 Item lastItem = actualItems.get(size - 1);
                 DiscountItem lastDiscountItem = new DiscountItem();
+                lastDiscountItem.setPid(lastItem.getPid());
                 lastDiscountItem.setId(lastItem.getId());
                 lastDiscountItem.setActivityId(activity.getId());
                 lastDiscountItem.setPrePrice(lastItem.getRealPrice());
                 lastDiscountItem.setDiscountAmount(lastItemDiscountAmount);
                 lastDiscountItem.setPostPrice(lastDiscountItem.getPrePrice().subtract(lastItemDiscountAmount));
+                lastDiscountItem.setDiscountNum(lastItem.getNum());
+
                 lastItem.addDiscountDetail(lastDiscountItem);
                 discountItems.add(lastDiscountItem);
             }
         }
 
-        activity.setDiscountItems(discountItems);
+        activity.addDiscountItems(discountItems);
     }
 }

@@ -3,6 +3,7 @@ package com.github.vizaizai.scholar.infrastructure.market2;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * 活动参与项
@@ -10,6 +11,10 @@ import java.util.List;
  * @date 2022/10/24 16:49
  */
 public class Item {
+    /**
+     * 局部id
+     */
+    private final String pid;
     /**
      * 标识
      */
@@ -40,7 +45,12 @@ public class Item {
         this.id = id;
         this.price = price;
         this.num = num;
-        discountDetails = new ArrayList<>();
+        this.discountDetails = new ArrayList<>();
+        this.pid = UUID.randomUUID().toString().replaceAll("-","");
+    }
+
+    public String getPid() {
+        return pid;
     }
 
     public BigDecimal getPrice() {
@@ -89,6 +99,19 @@ public class Item {
      */
     public List<DiscountItem> getDiscountDetails() {
         return discountDetails;
+    }
+
+
+    /**
+     * 获取活动优惠金额
+     * @return
+     */
+    public BigDecimal getDiscountAmount() {
+        if (discountDetails == null || discountDetails.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+        return discountDetails.stream().map(DiscountItem::getDiscountAmount).reduce(BigDecimal.ZERO,BigDecimal::add);
+
     }
 
     /**

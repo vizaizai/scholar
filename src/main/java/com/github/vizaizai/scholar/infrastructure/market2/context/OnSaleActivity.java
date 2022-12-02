@@ -3,10 +3,7 @@ package com.github.vizaizai.scholar.infrastructure.market2.context;
 import com.github.vizaizai.scholar.infrastructure.market2.context.impl.OnSaleStrategy;
 
 import java.math.BigDecimal;
-import java.util.Map;
-import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * 打折活动
@@ -21,7 +18,7 @@ public class OnSaleActivity extends Activity {
     /**
      * 参与项限制获取器
      */
-    private Function<String,Integer> maxLimitGetter;
+    private Function<String, Integer> maxLimitGetter;
 
     private OnSaleActivity(String id, BigDecimal value) {
         super(id, new OnSaleStrategy());
@@ -63,6 +60,4 @@ public class OnSaleActivity extends Activity {
     public BigDecimal getRatio() {
         return ratio;
     }
-
-
 }

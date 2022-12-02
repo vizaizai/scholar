@@ -188,12 +188,13 @@ public class MarketHandler {
             MarketContext<Activity> marketContext = new MarketContext<>(activity.getMarketStrategy());
             marketContext.doHandle(activityItems, activity);
         }
+        List<Activity> actualActivities = sortedActivities.stream().flatMap(e -> e.actualActivities().stream()).collect(Collectors.toList());
         // 总优惠
-        BigDecimal discountAmount = sortedActivities.stream().map(Activity::getDiscountAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal discountAmount = activityItems.stream().map(Item::getDiscountAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
         computeResult.setTotalDiscountAmount(discountAmount);
         computeResult.setFinalTotalPrice(totalPrice.subtract(discountAmount));
         computeResult.setItems(activityItems);
-        computeResult.setActivities(sortedActivities);
+        computeResult.setActivities(actualActivities);
 
         return computeResult;
     }
