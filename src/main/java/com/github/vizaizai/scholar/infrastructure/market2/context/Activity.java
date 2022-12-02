@@ -15,7 +15,7 @@ public class Activity {
     /**
      * 默认分组
      */
-    private static final Group undefinedGroup = new Group("undefined",Integer.MAX_VALUE);
+    private static final Group undefinedGroup = new Group("undefined",Integer.MAX_VALUE, false);
     /**
      * 活动标识
      */
@@ -40,10 +40,6 @@ public class Activity {
      * 分组id
      */
     private Group group = undefinedGroup;
-    /**
-     * 组内同享类型
-     */
-    private ShareType groupShareType = ShareType.DISABLED;
     /**
      * 优惠明细
      */
@@ -113,6 +109,22 @@ public class Activity {
     }
 
     /**
+     * 检查当前活动针对当前参与项是否有效
+     * @param items
+     * @return
+     */
+    public boolean check(List<Item> items) {
+        // 不指定全部可参与
+        if (itemIds == null) {
+            return true;
+        }
+        if (items == null) {
+            return false;
+        }
+        return items.stream().anyMatch(e -> this.itemIds.contains(e.getId()));
+    }
+
+    /**
      * 两两是否能同享
      */
     public boolean allShareTo(Collection<Activity> activities) {
@@ -124,7 +136,7 @@ public class Activity {
             return false;
         }
         if (other.getGroup().equals(this.group)) {
-            return other.getGroupShareType().shareTo(this.groupShareType);
+            return this.group.share;
         }else {
             return other.getShareType().shareTo(this.shareType);
         }
@@ -188,15 +200,6 @@ public class Activity {
             this.group = group;
         }
     }
-
-    public ShareType getGroupShareType() {
-        return groupShareType;
-    }
-
-    public void setGroupShareType(ShareType groupShareType) {
-        this.groupShareType = groupShareType;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -219,10 +222,15 @@ public class Activity {
          * 排序值
          */
         private final int sort;
+        /**
+         * 组内是否同享
+         */
+        private final boolean share;
 
-        public Group(String groupId, int sort) {
+        public Group(String groupId, int sort, boolean share) {
             this.groupId = groupId;
             this.sort = sort;
+            this.share = share;
         }
 
         public String getGroupId() {
@@ -233,5 +241,8 @@ public class Activity {
             return sort;
         }
 
+        public boolean isShare() {
+            return share;
+        }
     }
 }

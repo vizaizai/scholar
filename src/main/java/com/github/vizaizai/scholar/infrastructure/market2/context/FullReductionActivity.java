@@ -1,5 +1,6 @@
 package com.github.vizaizai.scholar.infrastructure.market2.context;
 
+import com.github.vizaizai.scholar.infrastructure.market2.Item;
 import com.github.vizaizai.scholar.infrastructure.market2.context.impl.FullReductionStrategy;
 
 import java.math.BigDecimal;
@@ -50,6 +51,16 @@ public class FullReductionActivity extends Activity{
         return this;
     }
 
+    @Override
+    public boolean check(List<Item> items) {
+        if (!super.check(items)) {
+            return false;
+        }
+        // 检查最大总金额是否满足最低门槛
+        BigDecimal totalPrice = this.getActualItems(items).stream().map(Item::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+        // 匹配任意一个满足门槛
+        return rules.stream().anyMatch(e -> totalPrice.compareTo(e.getMeetPrice()) >= 0);
+    }
 
     public List<Rule> getRules() {
         return rules;

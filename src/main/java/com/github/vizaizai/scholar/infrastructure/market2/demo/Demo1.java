@@ -20,13 +20,14 @@ public class Demo1 {
     public static void main(String[] args) {
 
 
-        Activity.Group shop_zhekou = new Activity.Group("门店折扣", 1);
-        Activity.Group shop_manjian = new Activity.Group("门店满减", 2);
-        Activity.Group shop_youhuiquan = new Activity.Group("门店优惠券", 3);
-        Activity.Group platform_youhuiquan = new Activity.Group("平台优惠券", 4);
-        Activity.Group platform_peisongfei = new Activity.Group("平台配送费优惠", 4);
-        Activity.Group platform_jifen = new Activity.Group("平台积分抵扣", 6);
-        Activity.Group platform_lijian = new Activity.Group("平台立减", 7);
+        Activity.Group shop_zhekou = new Activity.Group("门店折扣", 1,true);
+        Activity.Group shop_manjian = new Activity.Group("门店满减", 2,true);
+        Activity.Group shop_youhuiquan = new Activity.Group("门店优惠券", 3,false);
+        Activity.Group platform_youhuiquan = new Activity.Group("平台优惠券", 4,false);
+        Activity.Group platform_zhuanti_youhuiquan = new Activity.Group("平台优惠券", 4,false);
+        Activity.Group platform_peisongfei = new Activity.Group("平台配送费优惠", 4,false);
+        Activity.Group platform_jifen = new Activity.Group("平台积分抵扣", 6,false);
+        Activity.Group platform_lijian = new Activity.Group("平台立减", 7,false);
 
         Item item1 = new Item("item1",new BigDecimal("32"),3);
         Item item2 = new Item("item2",new BigDecimal("21"),2);
@@ -76,39 +77,35 @@ public class Demo1 {
         Activity a_platform_lijian1 = FullReductionActivity.create("a_platform_lijian1",new BigDecimal("20"),new BigDecimal("5"));
         a_platform_lijian1.setGroup(platform_lijian);
         a_platform_lijian1.setTag("平台立减1");
-        a_platform_lijian1.setGroupShareType(ShareType.NON_SHARE);
+        a_platform_lijian1.setItemIds(Arrays.asList("11111111"));
         activities.add(a_platform_lijian1);
 
         Activity a_platform_lijian2 = FullReductionActivity.create("a_platform_lijian2",new BigDecimal("30"),new BigDecimal("8"));
         a_platform_lijian2.setGroup(platform_lijian);
         a_platform_lijian2.setTag("平台立减2");
-        a_platform_lijian2.setGroupShareType(ShareType.NON_SHARE);
         activities.add(a_platform_lijian2);
 
-        Activity a_platform_lijian3 = FullReductionActivity.create("a_platform_lijian3",new BigDecimal("40"),new BigDecimal("12"));
+        Activity a_platform_lijian3 = FullReductionActivity.create("a_platform_lijian3",new BigDecimal("200"),new BigDecimal("12"));
         a_platform_lijian3.setGroup(platform_lijian);
         a_platform_lijian3.setTag("平台立减3");
-        a_platform_lijian3.setGroupShareType(ShareType.NON_SHARE);
         activities.add(a_platform_lijian3);
 
-        Activity a_platform_lijian4 = FullReductionActivity.create("a_platform_lijian4",new BigDecimal("50"),new BigDecimal("20"));
+        Activity a_platform_lijian4 = FullReductionActivity.create("a_platform_lijian4",new BigDecimal("300"),new BigDecimal("20"));
         a_platform_lijian4.setGroup(platform_lijian);
         a_platform_lijian4.setTag("平台立减5");
-        a_platform_lijian4.setGroupShareType(ShareType.NON_SHARE);
         activities.add(a_platform_lijian4);
 
-        Activity a_platform_lijian5 = FullReductionActivity.create("a_platform_lijian5",new BigDecimal("60"),new BigDecimal("33"));
+        Activity a_platform_lijian5 = FullReductionActivity.create("a_platform_lijian5",new BigDecimal("700"),new BigDecimal("33"));
         a_platform_lijian5.setGroup(platform_lijian);
         a_platform_lijian5.setTag("平台立减5");
-        a_platform_lijian5.setGroupShareType(ShareType.NON_SHARE);
         activities.add(a_platform_lijian5);
 
-        for (int i = 0; i < 10; i++) {
+        //for (int i = 0; i < 10; i++) {
             long s = System.currentTimeMillis();
-            MarketHandler marketHandler = new MarketHandler(activities, DiscountOption.best().must(Arrays.asList("a_shop_youhuiquan")));
-            ComputeResult result = marketHandler.execute(items);
+            MarketHandler marketHandler = new MarketHandler(activities, items, DiscountOption.best().must(Arrays.asList("a_shop_youhuiquan")));
+            ComputeResult result = marketHandler.execute();
             System.out.println("最终计算结果：" + JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect));
             System.out.println("耗时：" + (System.currentTimeMillis() - s) + "ms");
-        }
+         //}
     }
 }

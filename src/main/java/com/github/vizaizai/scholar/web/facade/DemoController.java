@@ -1,5 +1,6 @@
 package com.github.vizaizai.scholar.web.facade;
 
+import com.alibaba.fastjson.JSON;
 import com.github.vizaizai.scholar.infrastructure.persistence.dataobject.BookDo;
 import com.github.vizaizai.scholar.web.dto.Result;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,6 +33,17 @@ public class DemoController {
     @Autowired
     private ElasticsearchOperations elasticsearchOperations;
 
+    @PostMapping("/batch")
+    public Result<Void> addBooks(@RequestBody List<BookDo> bookDos,HttpServletRequest request) {
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String s = headerNames.nextElement();
+            String header = request.getHeader(s);
+            System.out.println(s + " -> " + header);
+        }
+        System.out.println(JSON.toJSONString(bookDos));
+        return Result.ok();
+    }
 
     @PostMapping
     public Result<Void> addBook(@RequestBody BookDo bookDo) {

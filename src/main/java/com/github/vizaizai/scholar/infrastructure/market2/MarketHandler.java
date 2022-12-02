@@ -1,8 +1,6 @@
 package com.github.vizaizai.scholar.infrastructure.market2;
 
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.github.vizaizai.scholar.infrastructure.market2.context.Activity;
 import com.github.vizaizai.scholar.infrastructure.market2.context.MarketContext;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +21,10 @@ public class MarketHandler {
      */
     private final List<Activity> activities;
     /**
+     * 活动参与项列表
+     */
+    private final List<Item> items;
+    /**
      * 优惠选择
      */
     private final DiscountOption discountOption;
@@ -36,9 +38,10 @@ public class MarketHandler {
     Comparator<Activity> comparator1 = Comparator.comparing(e-> e.getGroup().getSort());
     Comparator<Activity> comparator2 = Comparator.comparing(Activity::getSort);
 
-    public MarketHandler(List<Activity> activities, DiscountOption discountOption) {
+    public MarketHandler(List<Activity> activities, List<Item> items, DiscountOption discountOption) {
         this.activities = activities;
         this.discountOption = discountOption;
+        this.items = items;
         init();
     }
 
@@ -46,6 +49,9 @@ public class MarketHandler {
         if (activities == null || activities.size() == 1) {
             return;
         }
+        // 预处理活动列表，排除不满足条件的
+        this.activities.removeIf(activity -> !activity.check(this.items));
+
         // 初始组内化排序值
         for (int i = 0; i < this.activities.size(); i++) {
             this.activities.get(i).setSort(i);
@@ -105,7 +111,7 @@ public class MarketHandler {
         // 判断是否包含必要活动
         List<String> must = this.discountOption.getMust();
         if (must != null && !must.isEmpty()) {
-            List<String> ids = activityPlan.stream().map(Activity::getId).collect(Collectors.toList());
+            Set<String> ids = activityPlan.stream().map(Activity::getId).collect(Collectors.toSet());
             if (!ids.containsAll(must)) {
                 return;
             }
@@ -130,15 +136,7 @@ public class MarketHandler {
         }
     }
 
-    public static void main(String[] args) {
-        List<Integer> integers1 = Arrays.asList(1, 3, 4, 5);
-        List<Integer> integers2 = Arrays.asList(1, 3, 4, 5);
-
-        System.out.println(integers2.containsAll(integers1));
-
-    }
-
-    public ComputeResult execute(List<Item> items) {
+    public ComputeResult execute() {
         ComputeResult result = new ComputeResult();
         if (items == null || items.isEmpty()) {
             return result;
@@ -196,7 +194,6 @@ public class MarketHandler {
         computeResult.setFinalTotalPrice(totalPrice.subtract(discountAmount));
         computeResult.setItems(activityItems);
         computeResult.setActivities(sortedActivities);
-        System.out.println("方案：" + JSON.toJSONString(computeResult, SerializerFeature.DisableCircularReferenceDetect));
 
         return computeResult;
     }
