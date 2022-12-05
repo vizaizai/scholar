@@ -14,7 +14,7 @@ public class Item {
     /**
      * 局部id
      */
-    private final String pid;
+    private final transient String pid;
     /**
      * 标识
      */

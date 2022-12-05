@@ -11,7 +11,7 @@ public class DiscountItem {
     /**
      * 参与项pid
      */
-    private String pid;
+    private transient String pid;
     /**
      * 参与项标识
      */

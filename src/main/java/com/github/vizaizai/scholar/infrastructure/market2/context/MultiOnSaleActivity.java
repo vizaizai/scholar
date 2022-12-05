@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 多打折活动（使用最佳优惠）
+ * 多打折活动（选取局部最佳）
  * @author liaochongwei
  * @date 2022/12/2 11:45
  */

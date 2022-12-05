@@ -116,11 +116,11 @@ public class Demo1 {
 
 
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1; i++) {
             long s = System.currentTimeMillis();
             MarketHandler marketHandler = new MarketHandler(activities, items, DiscountOption.best().must(Arrays.asList("a_shop_youhuiquan")));
             ComputeResult result = marketHandler.execute();
-            //System.out.println("最终计算结果：" + JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect));
+            System.out.println("最终计算结果：" + JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect));
             System.out.println("耗时：" + (System.currentTimeMillis() - s) + "ms");
          }
     }
